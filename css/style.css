@@ -419,36 +419,36 @@ section {
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: 0.5px;
-  margin-bottom: 10px;
   padding: 4px 10px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   display: inline-block;
+}
+
+.order-category-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin: 4px 0 10px 2px;
   font-family: var(--font-mono);
-  text-transform: uppercase;
 }
 
 .order-category-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
+  gap: 8px;
 }
 
 .order-item {
   background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   padding: 18px 18px 16px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.1s;
+  transition: background 0.15s, border-color 0.15s;
   position: relative;
   user-select: none;
   animation: orderFadeIn 0.3s ease both;
-  border: 1px solid transparent;
-  margin: -1px;
 }
 
 .order-item:hover {

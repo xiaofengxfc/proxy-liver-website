@@ -5,28 +5,39 @@
 // ====== 服务目录（按分类） ======
 const SERVICE_CATEGORIES = [
   {
-    name: '📅 日常 · 周常',
+    name: '📅 托管',
+    desc: '期间会领取兑换码 + 版本签到 + 邮箱',
     items: [
       {
         id: 'daily',
-        name: '每日委托 · 活跃度',
+        name: '日常套餐',
         icon: '📋',
-        desc: '每日任务清空，稳定拿满星声与材料。包月更省心。',
-        variants: [
-          { label: '单周', price: 39 },
-          { label: '包月', price: 99 },
-        ],
+        desc: '每日活跃打满',
+        variants: [{ label: '月度', price: 40 }],
+      },
+      {
+        id: 'daily_weekly',
+        name: '日体套餐',
+        icon: '⚔️',
+        desc: '每日活跃 + 每日体力 + 周本',
+        variants: [{ label: '月度', price: 80 }],
         tag: '最受欢迎',
       },
       {
-        id: 'weekly',
-        name: '全周本 BOSS',
-        icon: '⚔️',
-        desc: '全周本、BOSS 材料、技能素材刷取。按角色配装定制。',
-        variants: [
-          { label: '单周', price: 49 },
-          { label: '包月', price: 129 },
-        ],
+        id: 'premium',
+        name: '精托套餐',
+        icon: '⭐',
+        desc: '日体套餐 + 期间活动 + 千道门扉 + 电台满级',
+        variants: [{ label: '月度', price: 200 }],
+      },
+      {
+        id: 'ultimate',
+        name: '至尊套餐',
+        icon: '👑',
+        desc: '全托套餐 + 队伍升级角色武器培养材料 + 规划账号强度养成',
+        variants: [{ label: '月度', price: 300 }],
+        featured: true,
+        tag: '推荐',
       },
     ],
   },
@@ -124,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     SERVICE_CATEGORIES.forEach((cat) => {
       html += `<div class="order-category">`;
       html += `<div class="order-category-title">${cat.name}</div>`;
+      if (cat.desc) html += `<div class="order-category-desc">${cat.desc}</div>`;
       html += `<div class="order-category-grid">`;
 
       cat.items.forEach((svc) => {
