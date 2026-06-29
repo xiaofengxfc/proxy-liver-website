@@ -32,8 +32,8 @@ const SERVICE_CATEGORIES = [
       { id: 'quest_tidal_4', name: '潮汐·第三章(1~5幕)', icon: '', desc: '20r/幕', variants: [{ label: '3幕', price: 60 }, { label: '5幕', price: 100 }] },
       { id: 'quest_companion', name: '伴星任务', icon: '', desc: '12r/幕', variants: [{ label: '幕', price: 12 }], hasQty: true, unit: '幕', maxQty: 20 },
       { id: 'quest_danger', name: '危行任务', icon: '', desc: '12r/个', variants: [{ label: '个', price: 12 }], hasQty: true, unit: '个', maxQty: 20 },
-      { id: 'quest_chronicle', name: '纪闻任务', icon: '', desc: '5~15r 看具体任务定价，自由输入数量', variants: [{ label: '个', price: 0 }], hasQty: true, unit: '个', maxQty: 99, noPrice: true },
-      { id: 'quest_hidden', name: '隐藏任务', icon: '', desc: '5~15r 看具体任务定价，自由输入数量', variants: [{ label: '个', price: 0 }], hasQty: true, unit: '个', maxQty: 99, noPrice: true },
+      { id: 'quest_chronicle', name: '纪闻任务', icon: '', desc: '5~15r 看具体任务定价', variants: [{ label: '咨询', price: 0 }], noPriceTag: true },
+      { id: 'quest_hidden', name: '隐藏任务', icon: '', desc: '5~15r 看具体任务定价', variants: [{ label: '咨询', price: 0 }], noPriceTag: true },
     ],
   },
   {
@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
           variantsHtml = svc.variants.map((v, i) => `
             <button class="order-variant${i === activeIdx && isSelected ? ' active' : ''}"
                     data-service="${svc.id}" data-idx="${i}">
-              ${v.label} <span class="price">¥${v.price}</span>
+              ${v.label}${svc.noPriceTag ? '' : ` <span class="price">¥${v.price}</span>`}
             </button>
           `).join('');
         }
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return `
         <span class="order-bar-tag">
           ${svc.name} · ${label}
-          <span class="tag-price">${svc.noPrice ? '咨询' : '¥' + price}</span>
+          <span class="tag-price">${svc.noPriceTag ? '' : svc.noPrice ? '咨询' : '¥' + price}</span>
           <span class="tag-remove" data-service="${id}">✕</span>
         </span>
       `;
