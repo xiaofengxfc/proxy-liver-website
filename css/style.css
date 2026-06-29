@@ -558,6 +558,7 @@ section {
 
 /* 探索选配弹窗 */
 .explore-modal-body { padding: 12px 20px; max-height: 50vh; overflow-y: auto; }
+.explore-select-all { margin-bottom: 8px; }
 .explore-section-title { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin: 12px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border); letter-spacing: 0.5px; }
 .explore-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s; }
 .explore-item:hover { background: var(--bg-hover); }

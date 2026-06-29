@@ -44,10 +44,10 @@ const SERVICE_CATEGORIES = [
   {
     name: '🗺️ 地图探索度',
     items: [
-      { id: 'collect_1', name: '瑝珑声匣', icon: '📦', desc: '需要全收集+70包前置', variants: [{ label: '搜集', price: 50 }], hasPercent: true },
-      { id: 'collect_2', name: '承霄山定风铎', icon: '🔔', desc: '', variants: [{ label: '搜集', price: 30 }], hasPercent: true },
-      { id: 'collect_3', name: '黎那汐塔声匣', icon: '📦', desc: '', variants: [{ label: '搜集', price: 70 }], hasPercent: true },
-      { id: 'collect_4', name: '罗伊冰原终声残卷', icon: '📜', desc: '', variants: [{ label: '搜集', price: 60 }], hasPercent: true },
+      { id: 'collect_1', name: '瑝珑声匣', icon: '📦', desc: '需要全收集+70包前置', variants: [{ label: '搜集', price: 50 }] },
+      { id: 'collect_2', name: '承霄山定风铎', icon: '🔔', desc: '', variants: [{ label: '搜集', price: 30 }] },
+      { id: 'collect_3', name: '黎那汐塔声匣', icon: '📦', desc: '', variants: [{ label: '搜集', price: 70 }] },
+      { id: 'collect_4', name: '罗伊冰原终声残卷', icon: '📜', desc: '', variants: [{ label: '搜集', price: 60 }] },
       { id: 'explore_pkg', name: '🌟 瑝珑+黑海岸', icon: '🌟', desc: '点击弹窗 · 选配12个探索区域', variants: [{ label: '选配', price: 0 }], tag: '点击选配 ▶', isExplorePkg: true },
     ],
   },
@@ -267,25 +267,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('explore-modal').classList.remove('show');
   }
   function renderExploreModal() {
-    let html = '';
-    EXPLORE_ITEMS.forEach((sec) => {
-      html += `<div class="explore-section-title">${sec.section}</div>`;
-      sec.items.forEach((item) => {
-        const sel = exploreSel[item.id];
-        const pct = explorePct[item.id] ?? 100;
-        const adjusted = Math.round(item.price * pct / 100);
-        html += `
-          <div class="explore-item${sel ? ' selected' : ''}" data-eid="${item.id}">
-            <div class="explore-check">${sel ? '✓' : ''}</div>
-            <span class="explore-item-name">${item.name}</span>
-            <span class="explore-item-price">¥${adjusted}</span>
-            <div class="order-percent" data-service="${item.id}">
-              <button class="percent-btn" data-action="minus">−</button>
-              <span class="percent-value">${pct}%</span>
-              <button class="percent-btn" data-action="plus">+</button>
-            </div>
-          </div>`;
-      });
+    const allSel = EXPLORE_ITEMS[0].items.every((item) => exploreSel[item.id]);
+    let html = `<div class="explore-select-all" id="explore-select-all">
+      <button class="btn btn-secondary" style="width:100%;justify-content:center;">${allSel ? '取消全选' : '☑ 全选所有区域'}</button>
+    </div>`;
+    html += `<div class="explore-section-title">${EXPLORE_ITEMS[0].section}</div>`;
+    EXPLORE_ITEMS[0].items.forEach((item) => {
+      const sel = exploreSel[item.id];
+      html += `
+        <div class="explore-item${sel ? ' selected' : ''}" data-eid="${item.id}">
+          <div class="explore-check">${sel ? '✓' : ''}</div>
+          <span class="explore-item-name">${item.name}</span>
+          <span class="explore-item-price">¥${item.price}</span>
+        </div>`;
     });
     document.getElementById('explore-modal-body').innerHTML = html;
     updateExploreTotal();
@@ -294,31 +288,21 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateExploreTotal() {
     let total = 0;
     EXPLORE_ITEMS.forEach((sec) => sec.items.forEach((item) => {
-      if (exploreSel[item.id]) {
-        total += Math.round(item.price * (explorePct[item.id] ?? 100) / 100);
-      }
+      if (exploreSel[item.id]) total += item.price;
     }));
     document.getElementById('explore-total').innerHTML = `¥${total}`;
   }
   function bindExploreEvents() {
     document.querySelectorAll('#explore-modal-body .explore-item').forEach((el) => {
-      el.addEventListener('click', (e) => {
-        if (e.target.closest('.order-percent')) return;
-        const id = el.dataset.eid;
-        exploreSel[id] = !exploreSel[id];
+      el.addEventListener('click', () => {
+        exploreSel[el.dataset.eid] = !exploreSel[el.dataset.eid];
         renderExploreModal();
       });
     });
-    document.querySelectorAll('#explore-modal-body .percent-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const svcId = btn.closest('.order-percent').dataset.service;
-        const cur = explorePct[svcId] ?? 100;
-        const delta = btn.dataset.action === 'plus' ? 10 : -10;
-        const next = Math.max(10, Math.min(100, cur + delta));
-        explorePct[svcId] = next;
-        renderExploreModal();
-      });
+    document.getElementById('explore-select-all')?.addEventListener('click', () => {
+      const allSel = EXPLORE_ITEMS[0].items.every((item) => exploreSel[item.id]);
+      EXPLORE_ITEMS[0].items.forEach((item) => { exploreSel[item.id] = !allSel; });
+      renderExploreModal();
     });
   }
   document.getElementById('explore-modal-close').addEventListener('click', closeExploreModal);
@@ -326,15 +310,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === e.currentTarget) closeExploreModal();
   });
   document.getElementById('explore-confirm').addEventListener('click', () => {
-    // 计算总额
     let total = 0;
     const lines = [];
     EXPLORE_ITEMS.forEach((sec) => sec.items.forEach((item) => {
       if (exploreSel[item.id]) {
-        const pct = explorePct[item.id] ?? 100;
-        const adjusted = Math.round(item.price * pct / 100);
-        total += adjusted;
-        lines.push(`${item.name} ${pct}% ¥${adjusted}`);
+        total += item.price;
+        lines.push(`${item.name} ¥${item.price}`);
       }
     }));
     if (total === 0) { closeExploreModal(); return; }
