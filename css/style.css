@@ -448,7 +448,6 @@ section {
   transition: background 0.15s, border-color 0.15s;
   position: relative;
   user-select: none;
-  animation: orderFadeIn 0.3s ease both;
 }
 
 .order-item:hover {
@@ -468,17 +467,6 @@ section {
 .order-item.featured.selected {
   background: #1a3a4a;
   border-color: var(--accent);
-}
-
-@keyframes orderFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .order-item-header {
