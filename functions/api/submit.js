@@ -21,7 +21,7 @@ export async function onRequest(context) {
 
   try {
     const body = await context.request.json();
-    const { name, contact, service, message } = body;
+    const { name, contact, service, message, order_summary } = body;
 
     // 基础校验
     if (!contact) {
@@ -52,16 +52,29 @@ export async function onRequest(context) {
       other: '其他',
     };
 
-    const text = [
+    const lines = [
       `📩 **鸣潮代肝 · 新咨询**`,
       ``,
       `👤 **称呼：** ${name || '未填写'}`,
       `📞 **联系方式：** ${contact}`,
-      `📋 **服务类型：** ${serviceMap[service] || service || '未选择'}`,
-      `💬 **备注：** ${message || '无'}`,
-      ``,
-      `🕐 ${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}`,
-    ].join('\n');
+    ];
+
+    // 如果是从选配器来的，显示详细订单
+    if (order_summary) {
+      lines.push(``);
+      lines.push(`📋 **选配清单：**`);
+      order_summary.split('\n').forEach(line => {
+        lines.push(`  ${line}`);
+      });
+    } else {
+      lines.push(`📋 **服务类型：** ${serviceMap[service] || service || '未选择'}`);
+    }
+
+    lines.push(`💬 **备注：** ${message || '无'}`);
+    lines.push(``);
+    lines.push(`🕐 ${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}`);
+
+    const text = lines.join('\n');
 
     // 发送到 Telegram
     const tgResp = await fetch(
