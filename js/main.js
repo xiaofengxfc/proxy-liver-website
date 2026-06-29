@@ -93,22 +93,6 @@ const SERVICE_CATEGORIES = [
       },
     ],
   },
-  {
-    name: '🌟 套餐推荐',
-    items: [
-      {
-        id: 'monthly',
-        name: '⭐ 月卡套餐（全包）',
-        icon: '🌟',
-        desc: '日常 + 周常 + 探索 + 深塔 + 声骸，一步到位，性价比最高。',
-        variants: [
-          { label: '月度', price: 299 },
-        ],
-        featured: true,
-        tag: '推荐',
-      },
-    ],
-  },
 ];
 
 // 拍平方便查找
