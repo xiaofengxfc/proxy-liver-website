@@ -138,12 +138,28 @@ document.addEventListener('DOMContentLoaded', () => {
           svc.featured ? 'featured' : '',
         ].filter(Boolean).join(' ');
 
-        const variantsHtml = svc.variants.map((v, i) => `
-          <button class="order-variant${i === activeIdx && isSelected ? ' active' : ''}"
-                  data-service="${svc.id}" data-idx="${i}">
-            ${v.label} <span class="price">¥${v.price}</span>
-          </button>
-        `).join('');
+        let variantsHtml;
+        if (svc.isExplorePkg) {
+          let label = '选配';
+          let price = 0;
+          if (isSelected) {
+            const detail = document.getElementById('explore_pkg_detail');
+            if (detail && detail.value) {
+              const prices = detail.value.match(/¥(\d+)/g);
+              const count = detail.value.split('\n').filter(Boolean).length;
+              if (prices) price = prices.reduce((s, m) => s + parseInt(m.replace('¥', ''), 10), 0);
+              label = count + '个区域';
+            }
+          }
+          variantsHtml = `<button class="order-variant active">${label} <span class="price">¥${price}</span></button>`;
+        } else {
+          variantsHtml = svc.variants.map((v, i) => `
+            <button class="order-variant${i === activeIdx && isSelected ? ' active' : ''}"
+                    data-service="${svc.id}" data-idx="${i}">
+              ${v.label} <span class="price">¥${v.price}</span>
+            </button>
+          `).join('');
+        }
 
         const badgeHtml = svc.tag
           ? `<span class="order-badge">${svc.tag}</span>`
