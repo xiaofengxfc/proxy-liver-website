@@ -20,7 +20,7 @@
       <li><a href="#services">服务</a></li>
       <li><a href="#pricing">价格</a></li>
       <li><a href="#faq">常见问题</a></li>
-      <li><a href="#contact" class="nav-cta">立即咨询</a></li>
+      <li><a href="#faq" class="nav-cta">常见问题</a></li>
     </ul>
   </nav>
 
@@ -38,7 +38,7 @@
       </p>
       <div class="hero-buttons">
         <a href="#pricing" class="btn btn-primary">查看价格</a>
-        <a href="#contact" class="btn btn-secondary">联系客服</a>
+        <a href="#pricing" class="btn btn-secondary">自助选配</a>
       </div>
 
       <div class="hero-stats">
@@ -222,95 +222,47 @@
     </div>
   </section>
 
-  <!-- ====== Contact ====== -->
-  <section id="contact">
-    <div class="section-label">—— 联系我们</div>
-    <h2 class="section-title fade-in">开始你的代肝之旅</h2>
-    <p class="section-sub fade-in">填写下方信息或直接通过联系方式找到我们。</p>
+  <!-- ====== Contact（已迁移至弹窗 + footer） ====== -->
 
-    <div class="contact-wrap">
-      <div class="contact-info fade-in">
-        <h3>联系方式</h3>
-        <p>以下方式均可联系到我们，推荐微信。</p>
-
-        <div class="contact-methods">
-          <div class="contact-method">
-            <div class="contact-method-icon">💬</div>
-            <div>
-              <div class="contact-method-label">微信</div>
-              <div class="contact-method-value">feng_yiu</div>
-            </div>
-          </div>
-
-          <div class="contact-method">
-            <div class="contact-method-icon">📧</div>
-            <div>
-              <div class="contact-method-label">邮箱</div>
-              <div class="contact-method-value">yileina0511@163.com</div>
-            </div>
-          </div>
-
-          <div class="contact-method">
-            <div class="contact-method-icon">🐧</div>
-            <div>
-              <div class="contact-method-label">QQ</div>
-              <div class="contact-method-value">1814692642</div>
-            </div>
-          </div>
-
-          <div class="contact-method">
-            <div class="contact-method-icon">🌐</div>
-            <div>
-              <div class="contact-method-label">服务时间</div>
-              <div class="contact-method-value">每天 09:00 – 23:00</div>
-            </div>
-          </div>
-        </div>
+  <!-- ====== 订单弹窗 ====== -->
+  <div class="modal-overlay" id="order-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">提交订单</span>
+        <button class="modal-close" id="modal-close">✕</button>
       </div>
 
-      <form class="contact-form fade-in" id="order-form">
+      <div class="modal-order-summary" id="modal-order-summary"></div>
+
+      <form id="modal-form">
         <div class="form-group">
-          <label for="name">您的称呼</label>
-          <input type="text" id="name" name="name" placeholder="如何称呼您？" />
+          <label for="modal-name">您的称呼 <span style="color:var(--orange)">*</span></label>
+          <input type="text" id="modal-name" placeholder="如何称呼您？" required />
         </div>
 
         <div class="form-group">
-          <label for="contact-input">联系方式 <span style="color:var(--orange)">*</span></label>
-          <input type="text" id="contact-input" name="contact" placeholder="微信 / QQ / 手机号" required />
+          <label for="modal-contact">联系方式 <span style="color:var(--orange)">*</span></label>
+          <input type="text" id="modal-contact" placeholder="微信 / QQ / 手机号" required />
         </div>
 
         <div class="form-group">
-          <label for="service">服务类型</label>
-          <select id="service" name="service">
-            <option value="">请选择服务类型</option>
-            <option value="daily">每日委托 / 周常</option>
-            <option value="explore">地图探索</option>
-            <option value="echo">声骸刷取</option>
-            <option value="tower">深境之塔</option>
-            <option value="leveling">等级冲刺 / 开荒</option>
-            <option value="monthly">月卡套餐</option>
-            <option value="other">其他</option>
-          </select>
+          <label for="modal-message">备注</label>
+          <textarea id="modal-message" placeholder="等级、角色配置、特殊要求……"></textarea>
         </div>
 
-        <div class="form-group">
-          <label for="message">备注 <span style="color:var(--text-muted);font-weight:400;">（已自动填入选配清单）</span></label>
-          <textarea id="message" name="message" placeholder="选配的服务会自动显示在这里……"></textarea>
-        </div>
+        <input type="hidden" id="modal-order-summary" />
+        <input type="hidden" id="modal-game" />
 
-        <!-- 隐藏字段：传给 Telegram 的订单详情 -->
-        <input type="hidden" id="order-summary-input" name="order_summary" value="" />
-
-        <button type="submit" class="btn btn-primary" id="form-submit-btn">提交咨询</button>
+        <button type="submit" class="btn btn-primary" id="modal-submit-btn" style="width:100%;justify-content:center;">确认提交</button>
       </form>
     </div>
-  </section>
+  </div>
 
   <!-- ====== Footer ====== -->
   <footer>
     <p>
-      © 2025 鸣潮代肝 · 纯人工服务 · 安全有保障 &nbsp;|&nbsp;
-      <a href="#hero">返回顶部 ↑</a>
+      © 2025 <span id="footer-game-name">鸣潮</span>代肝 &nbsp;|&nbsp;
+      💬 feng_yiu &nbsp;·&nbsp; 📧 yileina0511@163.com &nbsp;·&nbsp; 🐧 1814692642
     </p>
   </footer>
 

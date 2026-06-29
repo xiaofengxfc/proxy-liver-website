@@ -288,20 +288,57 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ====== 提交订单 → 滚动联系表单 ======
-  if (orderSubmitBtn) {
-    orderSubmitBtn.addEventListener('click', () => {
-      if (Object.keys(selected).length === 0) return;
-      const contact = document.querySelector('#contact');
-      if (contact) {
-        contact.scrollIntoView({ behavior: 'smooth' });
-        setTimeout(() => {
-          const nameInput = document.getElementById('name');
-          if (nameInput) nameInput.focus();
-        }, 500);
-      }
+  // ====== 提交订单 → 弹窗 ======
+  const modal = document.getElementById('order-modal');
+  const modalClose = document.getElementById('modal-close');
+  const modalSummary = document.getElementById('modal-order-summary');
+  const modalForm = document.getElementById('modal-form');
+  const modalSubmitBtn = document.getElementById('modal-submit-btn');
+  const modalOrderSummaryInput = document.getElementById('modal-order-summary');
+  const modalGameInput = document.getElementById('modal-game');
+
+  function openModal() {
+    if (Object.keys(selected).length === 0) return;
+    // 填充摘要
+    const items = FLAT_ITEMS;
+    const entries = Object.entries(selected).filter(([id]) => items.some((s) => s.id === id));
+    const total = entries.reduce((sum, [id, vIdx]) => {
+      const svc = items.find((s) => s.id === id);
+      const v = svc.variants[vIdx] || svc.variants[0];
+      return sum + v.price;
+    }, 0);
+    const lines = entries.map(([id, vIdx]) => {
+      const svc = items.find((s) => s.id === id);
+      const v = svc.variants[vIdx] || svc.variants[0];
+      return `${svc.icon} ${svc.name} — ${v.label}  ¥${v.price}`;
     });
+    lines.push(`━━━━━━━━━━━━━━━`);
+    lines.push(`💰 合计：¥${total}`);
+    const text = lines.join('\n');
+    modalSummary.textContent = text;
+    modalOrderSummaryInput.value = text;
+    modalGameInput.value = '鸣潮';
+    // 清空旧值
+    document.getElementById('modal-name').value = '';
+    document.getElementById('modal-contact').value = '';
+    document.getElementById('modal-message').value = '';
+    modal.classList.add('show');
+    setTimeout(() => document.getElementById('modal-name').focus(), 200);
   }
+
+  function closeModal() {
+    modal.classList.remove('show');
+  }
+
+  if (orderSubmitBtn) {
+    orderSubmitBtn.addEventListener('click', openModal);
+  }
+  if (modalClose) {
+    modalClose.addEventListener('click', closeModal);
+  }
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
 
   // ====== 备注：标记用户手动编辑 ======
   if (messageField) {
@@ -367,29 +404,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ========== Contact Form → POST → Telegram ==========
-  const form = document.querySelector('.contact-form');
-  if (form) {
-    form.addEventListener('submit', async (e) => {
+  // ========== 弹窗表单 → POST → Telegram ==========
+  if (modalForm) {
+    modalForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const btn = document.getElementById('form-submit-btn');
+      const btn = modalSubmitBtn;
       const original = btn.textContent;
 
-      const data = {
-        name: form.querySelector('#name')?.value?.trim() || '',
-        contact: form.querySelector('#contact-input')?.value?.trim() || '',
-        service: form.querySelector('#service')?.value || '',
-        message: form.querySelector('#message')?.value?.trim() || '',
-        order_summary: form.querySelector('#order-summary-input')?.value || '',
-      };
+      const name = document.getElementById('modal-name').value.trim();
+      const contact = document.getElementById('modal-contact').value.trim();
+      const message = document.getElementById('modal-message').value.trim();
+      const orderSummary = document.getElementById('modal-order-summary').value;
+      const game = document.getElementById('modal-game').value || '鸣潮';
 
-      if (!data.contact) {
+      if (!name) {
+        btn.textContent = '⚠ 请填写称呼';
+        btn.style.background = '#f44747';
+        setTimeout(() => { btn.textContent = original; btn.style.background = ''; }, 2000);
+        return;
+      }
+      if (!contact) {
         btn.textContent = '⚠ 请填写联系方式';
-        btn.style.background = '#ff4d4f';
-        setTimeout(() => {
-          btn.textContent = original;
-          btn.style.background = '';
-        }, 2000);
+        btn.style.background = '#f44747';
+        setTimeout(() => { btn.textContent = original; btn.style.background = ''; }, 2000);
         return;
       }
 
@@ -400,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const resp = await fetch('/api/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
+          body: JSON.stringify({ name, contact, game, message, order_summary: orderSummary }),
         });
 
         const result = await resp.json();
@@ -408,8 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (result.ok) {
           btn.textContent = '✓ 已提交 · 客服将尽快联系';
           btn.style.background = '';
-          form.reset();
-          // 清空选中
+          closeModal();
           Object.keys(selected).forEach((k) => delete selected[k]);
           renderOrderGrid();
           bindOrderEvents();
@@ -418,18 +454,14 @@ document.addEventListener('DOMContentLoaded', () => {
           if (messageField) delete messageField.dataset.userEdited;
         } else {
           btn.textContent = '✗ ' + (result.error || '提交失败');
-          btn.style.background = '#ff4d4f';
+          btn.style.background = '#f44747';
         }
       } catch {
         btn.textContent = '✗ 网络错误，请重试';
-        btn.style.background = '#ff4d4f';
+        btn.style.background = '#f44747';
       }
 
-      setTimeout(() => {
-        btn.textContent = original;
-        btn.style.background = '';
-        btn.style.pointerEvents = '';
-      }, 3000);
+      setTimeout(() => { btn.textContent = original; btn.style.background = ''; btn.style.pointerEvents = ''; }, 3000);
     });
   }
 
