@@ -1,0 +1,6 @@
+{
+  "name": "wuwa-boost",
+  "version": "1.0.0",
+  "description": "鸣潮代肝 — 静态页面，部署于 Cloudflare Pages",
+  "private": true
+}
