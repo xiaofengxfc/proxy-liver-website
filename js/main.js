@@ -17,11 +17,8 @@ const SERVICE_CATEGORIES = [
   {
     name: '地图探索度',
     items: [
-      { id: 'collect_1', name: '瑝珑声匣', icon: '', desc: '需要全收集+70包前置', variants: [{ label: '搜集', price: 50 }] },
-      { id: 'collect_2', name: '承霄山定风铎', icon: '', desc: '', variants: [{ label: '搜集', price: 30 }] },
-      { id: 'collect_3', name: '黎那汐塔声匣', icon: '', desc: '', variants: [{ label: '搜集', price: 70 }] },
-      { id: 'collect_4', name: '罗伊冰原终声残卷', icon: '', desc: '', variants: [{ label: '搜集', price: 60 }] },
-      { id: 'explore_pkg', name: '瑝珑+黑海岸', icon: '', desc: '点击弹窗 · 选配12个探索区域', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: true },
+      { id: 'explore_collect', name: '地图收集物', icon: '', desc: '点击弹窗 · 选配收集品', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'collect' },
+      { id: 'explore_areas', name: '瑝珑+黑海岸', icon: '', desc: '点击弹窗 · 选配12个探索区域', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'areas' },
     ],
   },
   {
@@ -36,22 +33,26 @@ const SERVICE_CATEGORIES = [
 // 拍平方便查找
 const FLAT_ITEMS = SERVICE_CATEGORIES.flatMap((c) => c.items);
 
-// ====== 瑝珑+黑海岸 子区域数据 ======
-const EXPLORE_ITEMS = [
-  { section: '瑝珑+黑海岸 · 区域列表', items: [
-    { id: 'area_ylg', name: '云陵谷', price: 20 },
-    { id: 'area_jzc', name: '今州城', price: 30 },
-    { id: 'area_zqtd', name: '中曲台地', price: 50 },
-    { id: 'area_hsgd', name: '荒石高地', price: 40 },
-    { id: 'area_gxgs', name: '归墟港市', price: 50 },
-    { id: 'area_wgzs', name: '无光之森', price: 35 },
-    { id: 'area_wmg', name: '无明港', price: 20 },
-    { id: 'area_bly', name: '北落野', price: 15 },
-    { id: 'area_yz', name: '怨鸟泽', price: 40 },
-    { id: 'area_hksm', name: '虎口山脉', price: 20 },
-    { id: 'area_cxs', name: '乘霄山', price: 50 },
-    { id: 'area_hha', name: '黑海岸', price: 50 },
-  ]},
+// ====== 探索弹窗数据 ======
+const EXPLORE_COLLECT = [
+  { id: 'ec_1', name: '瑝珑声匣', price: 50 },
+  { id: 'ec_2', name: '承霄山定风铎', price: 30 },
+  { id: 'ec_3', name: '黎那汐塔声匣', price: 70 },
+  { id: 'ec_4', name: '罗伊冰原终声残卷', price: 60 },
+];
+const EXPLORE_AREAS = [
+  { id: 'area_ylg', name: '云陵谷', price: 20 },
+  { id: 'area_jzc', name: '今州城', price: 30 },
+  { id: 'area_zqtd', name: '中曲台地', price: 50 },
+  { id: 'area_hsgd', name: '荒石高地', price: 40 },
+  { id: 'area_gxgs', name: '归墟港市', price: 50 },
+  { id: 'area_wgzs', name: '无光之森', price: 35 },
+  { id: 'area_wmg', name: '无明港', price: 20 },
+  { id: 'area_bly', name: '北落野', price: 15 },
+  { id: 'area_yz', name: '怨鸟泽', price: 40 },
+  { id: 'area_hksm', name: '虎口山脉', price: 20 },
+  { id: 'area_cxs', name: '乘霄山', price: 50 },
+  { id: 'area_hha', name: '黑海岸', price: 50 },
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -97,12 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
           let label = '选配';
           let price = 0;
           if (isSelected) {
-            const detail = document.getElementById('explore_pkg_detail');
+            const detail = document.getElementById('explore_areas_detail');
             if (detail && detail.value) {
               const prices = detail.value.match(/¥(\d+)/g);
               const count = detail.value.split('\n').filter(Boolean).length;
               if (prices) price = prices.reduce((s, m) => s + parseInt(m.replace('¥', ''), 10), 0);
-              label = count + '个区域';
+              label = count + '项';
             }
           }
           variantsHtml = `<button class="order-variant active">${label} <span class="price">¥${price}</span></button>`;
@@ -169,14 +170,14 @@ document.addEventListener('DOMContentLoaded', () => {
       let price = variant.price;
       let label = variant.label;
       if (svc.isExplorePkg) {
-        const detail = document.getElementById('explore_pkg_detail');
+        const detail = document.getElementById(id + '_detail');
         if (detail && detail.value) {
           const prices = detail.value.match(/¥(\d+)/g);
           if (prices) {
             price = prices.reduce((s, m) => s + parseInt(m.replace('¥', ''), 10), 0);
           }
           const selected = detail.value.split('\n').filter(Boolean);
-          label = selected.length + '个区域';
+          label = selected.length + '项';
         }
       }
       return `
@@ -193,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const svc = FLAT_ITEMS.find((s) => s.id === id);
       if (svc.isExplorePkg) {
         // 探索选配：从 hidden input 取明细算总价
-        const detail = document.getElementById('explore_pkg_detail');
+        const detail = document.getElementById(svc.id + '_detail');
         if (detail && detail.value) {
           const matched = detail.value.match(/¥(\d+)/g);
           if (matched) return sum + matched.reduce((s, m) => s + parseInt(m.replace('¥', ''), 10), 0);
@@ -210,9 +211,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const summaryLines = entries.map(([id, vIdx]) => {
       const svc = FLAT_ITEMS.find((s) => s.id === id);
       if (svc.isExplorePkg) {
-        const detail = document.getElementById('explore_pkg_detail');
+        const detail = document.getElementById(svc.id + '_detail');
         const dl = detail?.value ? detail.value.split('\n') : [];
-        return ['🗺️ 探索选配'].concat(dl.map((l) => '  ' + l)).join('\n');
+        return ['瑝珑+黑海岸'].concat(dl.map((l) => '  ' + l)).join('\n');
       }
       const variant = svc.variants[vIdx] || svc.variants[0];
       const pct = svc.hasPercent ? (itemPercent[id] ?? 100) / 100 : 1;
@@ -235,13 +236,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // 托管类（第一个分类）单选，其余分类多选
   const TRUST_IDS = new Set(SERVICE_CATEGORIES[0].items.map((s) => s.id));
 
-  // ====== 探索弹窗 ======
-  function openExploreModal() {
-    // 初始化未选中的项
-    EXPLORE_ITEMS.forEach((sec) => sec.items.forEach((item) => {
-      if (exploreSel[item.id] === undefined) exploreSel[item.id] = false;
-      if (explorePct[item.id] === undefined) explorePct[item.id] = 100;
-    }));
+  // ====== 探索弹窗（双模式） ======
+  let exploreMode = '';
+
+  function getExploreItems(mode) { return mode === 'collect' ? EXPLORE_COLLECT : EXPLORE_AREAS; }
+  function getExploreKey(mode) { return mode === 'collect' ? 'explore_collect' : 'explore_areas'; }
+  function getExploreLabel(mode) { return mode === 'collect' ? '收集品' : '瑝珑+黑海岸 · 区域'; }
+
+  function openExploreModal(mode) {
+    exploreMode = mode;
+    const items = getExploreItems(mode);
+    items.forEach((item) => { if (exploreSel[item.id] === undefined) exploreSel[item.id] = false; });
+    document.getElementById('explore-modal-title').textContent = getExploreLabel(mode);
     renderExploreModal();
     document.getElementById('explore-modal').classList.add('show');
   }
@@ -249,83 +255,59 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('explore-modal').classList.remove('show');
   }
   function renderExploreModal() {
-    const allSel = EXPLORE_ITEMS[0].items.every((item) => exploreSel[item.id]);
+    const items = getExploreItems(exploreMode);
+    const allSel = items.every((item) => exploreSel[item.id]);
     let html = `<div class="explore-select-all" id="explore-select-all">
-      <button class="btn btn-secondary" style="width:100%;justify-content:center;">${allSel ? '取消全选' : '☑ 全选所有区域'}</button>
+      <button class="btn btn-secondary" style="width:100%;justify-content:center;">${allSel ? '取消全选' : '☑ 全选'}</button>
     </div>`;
-    html += `<div class="explore-section-title">${EXPLORE_ITEMS[0].section}</div>`;
-    EXPLORE_ITEMS[0].items.forEach((item) => {
+    html += `<div class="explore-section-title">${getExploreLabel(exploreMode)}</div>`;
+    items.forEach((item) => {
       const sel = exploreSel[item.id];
-      html += `
-        <div class="explore-item${sel ? ' selected' : ''}" data-eid="${item.id}">
-          <div class="explore-check">${sel ? '✓' : ''}</div>
-          <span class="explore-item-name">${item.name}</span>
-          <span class="explore-item-price">¥${item.price}</span>
-        </div>`;
+      html += `<div class="explore-item${sel ? ' selected' : ''}" data-eid="${item.id}"><div class="explore-check">${sel ? '✓' : ''}</div><span class="explore-item-name">${item.name}</span><span class="explore-item-price">¥${item.price}</span></div>`;
     });
     document.getElementById('explore-modal-body').innerHTML = html;
     updateExploreTotal();
     bindExploreEvents();
   }
   function updateExploreTotal() {
-    let total = 0;
-    EXPLORE_ITEMS.forEach((sec) => sec.items.forEach((item) => {
-      if (exploreSel[item.id]) total += item.price;
-    }));
+    const items = getExploreItems(exploreMode);
+    const total = items.reduce((s, item) => s + (exploreSel[item.id] ? item.price : 0), 0);
     document.getElementById('explore-total').innerHTML = `¥${total}`;
   }
   function bindExploreEvents() {
     document.querySelectorAll('#explore-modal-body .explore-item').forEach((el) => {
-      el.addEventListener('click', () => {
-        exploreSel[el.dataset.eid] = !exploreSel[el.dataset.eid];
-        renderExploreModal();
-      });
+      el.addEventListener('click', () => { exploreSel[el.dataset.eid] = !exploreSel[el.dataset.eid]; renderExploreModal(); });
     });
     document.getElementById('explore-select-all')?.addEventListener('click', () => {
-      const allSel = EXPLORE_ITEMS[0].items.every((item) => exploreSel[item.id]);
-      EXPLORE_ITEMS[0].items.forEach((item) => { exploreSel[item.id] = !allSel; });
+      const items = getExploreItems(exploreMode);
+      const allSel = items.every((item) => exploreSel[item.id]);
+      items.forEach((item) => { exploreSel[item.id] = !allSel; });
       renderExploreModal();
     });
   }
   document.getElementById('explore-modal-close').addEventListener('click', closeExploreModal);
-  document.getElementById('explore-modal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeExploreModal();
-  });
+  document.getElementById('explore-modal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeExploreModal(); });
   document.getElementById('explore-confirm').addEventListener('click', () => {
+    const mode = exploreMode;
+    const items = getExploreItems(mode);
+    const key = getExploreKey(mode);
     let total = 0;
     const lines = [];
-    EXPLORE_ITEMS.forEach((sec) => sec.items.forEach((item) => {
-      if (exploreSel[item.id]) {
-        total += item.price;
-        lines.push(`${item.name} ¥${item.price}`);
-      }
-    }));
+    items.forEach((item) => {
+      if (exploreSel[item.id]) { total += item.price; lines.push(`${item.name} ¥${item.price}`); }
+    });
     if (total === 0) {
-      // 如果之前已选中，清空
-      delete selected['explore_pkg'];
-      document.getElementById('explore_pkg_detail')?.remove();
-      renderOrderGrid();
-      updateSummary();
-      bindOrderEvents();
-      bindRemoveEvents();
-      closeExploreModal();
+      delete selected[key];
+      document.getElementById(key + '_detail')?.remove();
+      renderOrderGrid(); updateSummary(); bindOrderEvents(); bindRemoveEvents(); closeExploreModal();
       return;
     }
-    // 把结果写入 selected
-    selected['explore_pkg'] = 0;
-    itemPercent['explore_pkg'] = 100;
-    // 存储明细到 DOM
-    document.getElementById('explore_pkg_detail')?.remove();
+    selected[key] = 0;
+    document.getElementById(key + '_detail')?.remove();
     const input = document.createElement('input');
-    input.type = 'hidden';
-    input.id = 'explore_pkg_detail';
-    input.value = lines.join('\n');
+    input.type = 'hidden'; input.id = key + '_detail'; input.value = lines.join('\n');
     document.body.appendChild(input);
-    renderOrderGrid();
-    updateSummary();
-    bindOrderEvents();
-    bindRemoveEvents();
-    closeExploreModal();
+    renderOrderGrid(); updateSummary(); bindOrderEvents(); bindRemoveEvents(); closeExploreModal();
   });
 
   function toggleService(id) {
@@ -334,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 探索选配套餐 → 打开弹窗
     if (svc.isExplorePkg) {
-      openExploreModal();
+      openExploreModal(svc.isExplorePkg);
       return;
     }
 
@@ -362,12 +344,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const svc = FLAT_ITEMS.find((s) => s.id === serviceId);
     if (!svc || !svc.variants[idx]) return;
 
+    // 探索类：点击 variant 也打开弹窗
+    if (svc.isExplorePkg) {
+      openExploreModal(svc.isExplorePkg);
+      return;
+    }
+
     // 托管类：切 variant 时也清除其他托管项
     if (TRUST_IDS.has(serviceId)) {
       TRUST_IDS.forEach((tid) => { if (tid !== serviceId) delete selected[tid]; });
     }
 
-    // 如果未选中，先选上
     if (selected[serviceId] === undefined) {
       selected[serviceId] = idx;
     } else {
@@ -383,8 +370,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function removeItem(serviceId) {
     delete selected[serviceId];
     // 清除探索选配明细
-    if (serviceId === 'explore_pkg') {
-      document.getElementById('explore_pkg_detail')?.remove();
+    if (serviceId === 'explore_collect' || serviceId === 'explore_areas') {
+      document.getElementById(serviceId + '_detail')?.remove();
     }
     renderOrderGrid();
     updateSummary();
@@ -470,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const total = entries.reduce((sum, [id, vIdx]) => {
       const svc = items.find((s) => s.id === id);
       if (svc.isExplorePkg) {
-        const detail = document.getElementById('explore_pkg_detail');
+        const detail = document.getElementById(svc.id + '_detail');
         if (detail && detail.value) {
           const prices = detail.value.match(/¥(\d+)/g);
           if (prices) return sum + prices.reduce((s, m) => s + parseInt(m.replace('¥', ''), 10), 0);
@@ -484,8 +471,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const lines = entries.map(([id, vIdx]) => {
       const svc = items.find((s) => s.id === id);
       if (svc.isExplorePkg) {
-        const detail = document.getElementById('explore_pkg_detail');
-        return detail?.value ? ['🗺️ 探索选配'].concat(detail.value.split('\n').map((l) => '  ' + l)).join('\n') : '🗺️ 探索选配';
+        const detail = document.getElementById(svc.id + '_detail');
+        return detail?.value ? ['瑝珑+黑海岸'].concat(detail.value.split('\n').map((l) => '  ' + l)).join('\n') : '瑝珑+黑海岸';
       }
       const v = svc.variants[vIdx] || svc.variants[0];
       const pct = svc.hasPercent ? (itemPercent[id] ?? 100) / 100 : 1;
