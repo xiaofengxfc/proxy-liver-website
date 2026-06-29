@@ -39,6 +39,30 @@ const SERVICE_CATEGORIES = [
     ],
   },
   {
+    name: '活动',
+    items: [
+      { id: 'evt_big', name: '大活动', price: 0 },
+      { id: 'evt_small', name: '小活动', price: 20 },
+      { id: 'evt_tower', name: '深塔', price: 30 },
+      { id: 'evt_sea', name: '海墟', price: 30 },
+      { id: 'evt_perm_1', name: '失序梦图', price: 60 },
+      { id: 'evt_perm_2', name: '老人与海', price: 80 },
+      { id: 'evt_perm_3', name: '团团转', price: 40 },
+      { id: 'evt_perm_4', name: '旌旗不落', price: 40 },
+      { id: 'evt_perm_5', name: '激斗荣耀之丘', price: 100 },
+      { id: 'evt_perm_6', name: '唯你的长夏永不凋落', price: 15 },
+      { id: 'evt_perm_7', name: '浸梦海床', price: 180 },
+      { id: 'evt_perm_8', name: '幻梦游园', price: 50 },
+      { id: 'evt_perm_9', name: '潮蚀模拟', price: 100 },
+      { id: 'evt_perm_10', name: '穗波', price: 50 },
+      { id: 'evt_perm_11', name: '开辟测界之路', price: 40 },
+      { id: 'evt_perm_12', name: '拉海洛先行计划', price: 40 },
+      { id: 'evt_perm_13', name: '荣耀之丘：激斗重反', price: 80 },
+      { id: 'evt_perm_14', name: '诸星密语', price: 10 },
+      { id: 'evt_perm_15', name: '沿着节拍启航', price: 40 },
+    ],
+  },
+  {
     name: '数据坞',
     items: [
       { id: 'data_all', name: '0~30级全包', price: 300 },
@@ -173,8 +197,8 @@ function testDataStructure() {
 
   const items = flatItems(SERVICE_CATEGORIES);
 
-  assertEq(SERVICE_CATEGORIES.length, 4, '分类数量 = 4');
-  assertEq(items.length, 20, '服务项总数 = 20');
+  assertEq(SERVICE_CATEGORIES.length, 5, '分类数量 = 5');
+  assertEq(items.length, 39, '服务项总数 = 39');
 
   const trustIds = getTrustIds(SERVICE_CATEGORIES);
   assertEq(trustIds.size, 4, '托管类服务数量 = 4');
