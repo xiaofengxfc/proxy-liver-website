@@ -218,7 +218,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ====== 切换选择（多选 — 点一下选，再点取消） ======
+  // ====== 切换选择 ======
+  // 托管类（第一个分类）单选，其余分类多选
+  const TRUST_IDS = new Set(SERVICE_CATEGORIES[0].items.map((s) => s.id));
+
   function toggleService(id) {
     const svc = FLAT_ITEMS.find((s) => s.id === id);
     if (!svc) return;
@@ -226,6 +229,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (selected[id] !== undefined) {
       delete selected[id];
     } else {
+      // 如果是托管类，先清空其他托管项
+      if (TRUST_IDS.has(id)) {
+        TRUST_IDS.forEach((tid) => { if (tid !== id) delete selected[tid]; });
+      }
       selected[id] = 0; // 默认第一个 variant
     }
     renderOrderGrid();
@@ -239,6 +246,11 @@ document.addEventListener('DOMContentLoaded', () => {
     idx = parseInt(idx, 10);
     const svc = FLAT_ITEMS.find((s) => s.id === serviceId);
     if (!svc || !svc.variants[idx]) return;
+
+    // 托管类：切 variant 时也清除其他托管项
+    if (TRUST_IDS.has(serviceId)) {
+      TRUST_IDS.forEach((tid) => { if (tid !== serviceId) delete selected[tid]; });
+    }
 
     // 如果未选中，先选上
     if (selected[serviceId] === undefined) {
