@@ -30,10 +30,10 @@ const SERVICE_CATEGORIES = [
       { id: 'quest_tidal_2', name: '潮汐·第一章(7~8幕)', icon: '', desc: '20r/幕', variants: [{ label: '1幕', price: 20 }, { label: '2幕', price: 40 }] },
       { id: 'quest_tidal_3', name: '潮汐·第二章(1~12幕)', icon: '', desc: '20r/幕', variants: [{ label: '6幕', price: 120 }, { label: '12幕', price: 240 }] },
       { id: 'quest_tidal_4', name: '潮汐·第三章(1~5幕)', icon: '', desc: '20r/幕', variants: [{ label: '3幕', price: 60 }, { label: '5幕', price: 100 }] },
-      { id: 'quest_companion', name: '伴星任务', icon: '', desc: '12r/幕', variants: [{ label: '1幕', price: 12 }, { label: '5幕', price: 60 }] },
-      { id: 'quest_danger', name: '危行任务', icon: '', desc: '12r/个', variants: [{ label: '1个', price: 12 }, { label: '5个', price: 60 }] },
-      { id: 'quest_chronicle', name: '纪闻任务', icon: '', desc: '5~15r 看具体任务定价', variants: [{ label: '咨询', price: 10 }] },
-      { id: 'quest_hidden', name: '隐藏任务', icon: '', desc: '5~15r 看具体任务定价', variants: [{ label: '咨询', price: 10 }] },
+      { id: 'quest_companion', name: '伴星任务', icon: '', desc: '12r/幕', variants: [{ label: '幕', price: 12 }], hasQty: true, unit: '幕', maxQty: 20 },
+      { id: 'quest_danger', name: '危行任务', icon: '', desc: '12r/个', variants: [{ label: '个', price: 12 }], hasQty: true, unit: '个', maxQty: 20 },
+      { id: 'quest_chronicle', name: '纪闻任务', icon: '', desc: '5~15r 看具体任务定价，自由输入数量', variants: [{ label: '个', price: 0 }], hasQty: true, unit: '个', maxQty: 99, noPrice: true },
+      { id: 'quest_hidden', name: '隐藏任务', icon: '', desc: '5~15r 看具体任务定价，自由输入数量', variants: [{ label: '个', price: 0 }], hasQty: true, unit: '个', maxQty: 99, noPrice: true },
     ],
   },
   {
@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ====== 选配器状态（多选） ======
   const selected = {};   // selected[服务id] = variant索引
   const itemPercent = {}; // itemPercent[服务id] = 探索度 (1-100)
+  const itemQty = {};     // itemQty[服务id] = 数量
 
   // ====== 探索选配状态 ======
   const exploreSel = {};     // exploreSel[子项id] = true/false
@@ -161,6 +162,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
           variantsHtml = `<button class="order-variant active">${label} <span class="price">¥${price}</span></button>`;
+        } else if (svc.hasQty) {
+          const qty = itemQty[svc.id] || 1;
+          const unitPrice = svc.variants[0]?.price || 0;
+          const totalPrice = svc.noPrice ? 0 : qty * unitPrice;
+          const priceLabel = svc.noPrice ? '咨询' : `¥${totalPrice}`;
+          variantsHtml = `<button class="order-variant active">${qty}${svc.unit || ''} <span class="price">${priceLabel}</span></button>`;
         } else {
           variantsHtml = svc.variants.map((v, i) => `
             <button class="order-variant${i === activeIdx && isSelected ? ' active' : ''}"
@@ -190,6 +197,13 @@ document.addEventListener('DOMContentLoaded', () => {
               <button class="percent-btn" data-action="minus">−</button>
               <span class="percent-value">${itemPercent[svc.id] || 100}%</span>
               <button class="percent-btn" data-action="plus">+</button>
+            </div>` : ''}
+            ${svc.hasQty ? `
+            <div class="order-qty" data-service="${svc.id}">
+              <button class="qty-btn" data-action="minus">−</button>
+              <span class="qty-value">${itemQty[svc.id] || 1}</span>
+              <span class="qty-unit">${svc.unit || ''}</span>
+              <button class="qty-btn" data-action="plus">+</button>
             </div>` : ''}
           </div>
         `;
@@ -234,10 +248,15 @@ document.addEventListener('DOMContentLoaded', () => {
           label = selected.length + '项';
         }
       }
+      if (svc.hasQty) {
+        const qty = itemQty[id] || 1;
+        price = svc.noPrice ? 0 : qty * (svc.variants[0]?.price || 0);
+        label = qty + (svc.unit || '');
+      }
       return `
         <span class="order-bar-tag">
           ${svc.name} · ${label}
-          <span class="tag-price">¥${price}</span>
+          <span class="tag-price">${svc.noPrice ? '咨询' : '¥' + price}</span>
           <span class="tag-remove" data-service="${id}">✕</span>
         </span>
       `;
@@ -255,6 +274,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return sum;
       }
+      if (svc.hasQty) {
+        if (svc.noPrice) return sum;
+        const qty = itemQty[id] || 1;
+        return sum + qty * (svc.variants[0]?.price || 0);
+      }
       const variant = svc.variants[vIdx] || svc.variants[0];
       const pct = svc.hasPercent ? (itemPercent[id] ?? 100) / 100 : 1;
       return sum + Math.round(variant.price * pct);
@@ -268,6 +292,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const detail = document.getElementById(svc.id + '_detail');
         const dl = detail?.value ? detail.value.split('\n') : [];
         return ['瑝珑+黑海岸'].concat(dl.map((l) => '  ' + l)).join('\n');
+      }
+      if (svc.hasQty) {
+        const qty = itemQty[id] || 1;
+        if (svc.noPrice) return `${svc.name} — ${qty}${svc.unit}  咨询`;
+        const total = qty * (svc.variants[0]?.price || 0);
+        return `${svc.name} — ${qty}${svc.unit}  ¥${total}`;
       }
       const variant = svc.variants[vIdx] || svc.variants[0];
       const pct = svc.hasPercent ? (itemPercent[id] ?? 100) / 100 : 1;
@@ -400,9 +430,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (TRUST_IDS.has(id)) {
         TRUST_IDS.forEach((tid) => { if (tid !== id) delete selected[tid]; });
       }
-      selected[id] = 0; // 默认第一个 variant
+      selected[id] = 0;
       if (svc.hasPercent && itemPercent[id] === undefined) {
         itemPercent[id] = 100;
+      }
+      if (svc.hasQty && itemQty[id] === undefined) {
+        itemQty[id] = 1;
       }
     }
     renderOrderGrid();
@@ -466,12 +499,27 @@ document.addEventListener('DOMContentLoaded', () => {
     bindRemoveEvents();
   }
 
+  // ====== 调整数量 ======
+  function adjustQty(serviceId, delta) {
+    const svc = FLAT_ITEMS.find((s) => s.id === serviceId);
+    if (!svc || !svc.hasQty) return;
+    const cur = itemQty[serviceId] || 1;
+    let next = cur + delta;
+    next = Math.max(1, Math.min(svc.maxQty || 99, next));
+    itemQty[serviceId] = next;
+    renderOrderGrid();
+    updateSummary();
+    bindOrderEvents();
+    bindRemoveEvents();
+  }
+
   // ====== 绑定事件 ======
   function bindOrderEvents() {
     document.querySelectorAll('.order-item').forEach((card) => {
       card.addEventListener('click', (e) => {
         if (e.target.closest('.order-variant')) return;
         if (e.target.closest('.order-percent')) return;
+        if (e.target.closest('.order-qty')) return;
         toggleService(card.dataset.service);
       });
     });
@@ -499,6 +547,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const cur = itemPercent[svcId] ?? 100;
         const next = cur >= 100 ? 10 : 100;
         adjustPercent(svcId, next - cur);
+      });
+    });
+
+    document.querySelectorAll('.qty-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const svcId = btn.closest('.order-qty').dataset.service;
+        const delta = btn.dataset.action === 'plus' ? 1 : -1;
+        adjustQty(svcId, delta);
       });
     });
   }
@@ -537,6 +594,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return sum;
       }
+      if (svc.hasQty) {
+        if (svc.noPrice) return sum;
+        const qty = itemQty[id] || 1;
+        return sum + qty * (svc.variants[0]?.price || 0);
+      }
       const v = svc.variants[vIdx] || svc.variants[0];
       const pct = svc.hasPercent ? (itemPercent[id] ?? 100) / 100 : 1;
       return sum + Math.round(v.price * pct);
@@ -546,6 +608,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (svc.isExplorePkg) {
         const detail = document.getElementById(svc.id + '_detail');
         return detail?.value ? ['瑝珑+黑海岸'].concat(detail.value.split('\n').map((l) => '  ' + l)).join('\n') : '瑝珑+黑海岸';
+      }
+      if (svc.hasQty) {
+        const qty = itemQty[id] || 1;
+        if (svc.noPrice) return `${svc.name} — ${qty}${svc.unit}  咨询`;
+        const total2 = qty * (svc.variants[0]?.price || 0);
+        return `${svc.name} — ${qty}${svc.unit}  ¥${total2}`;
       }
       const v = svc.variants[vIdx] || svc.variants[0];
       const pct = svc.hasPercent ? (itemPercent[id] ?? 100) / 100 : 1;
