@@ -21,6 +21,7 @@ const SERVICE_CATEGORIES = [
     items: [
       { id: 'explore_collect', name: '地图收集物', isExplore: 'collect' },
       { id: 'explore_areas', name: '瑝珑+黑海岸', isExplore: 'areas' },
+      { id: 'explore_linaxita_full', name: '黎那汐塔满探索全收集', isExplore: 'linaxita_full' },
     ],
   },
   {
@@ -39,6 +40,23 @@ const EXPLORE_COLLECT = [
   { id: 'ec_4', name: '罗伊冰原终声残卷', price: 60 },
 ];
 
+const EXPLORE_LINAXITA = [
+  { id: 'ln_1', name: '拉古那城', price: 10 },
+  { id: 'ln_2', name: '埃弗拉德金库', price: 30 },
+  { id: 'ln_3', name: '悲叹墓岛', price: 30 },
+  { id: 'ln_4', name: '赞悼圣迹', price: 20 },
+  { id: 'ln_5', name: '拂风水畔', price: 20 },
+  { id: 'ln_6', name: '氤柔水境', price: 30 },
+  { id: 'ln_7', name: '槲生半岛', price: 30 },
+  { id: 'ln_8', name: '狄萨莱海脊', price: 40 },
+  { id: 'ln_9', name: '黎乔利群岛', price: 20 },
+  { id: 'ln_10', name: '下层金库', price: 30 },
+  { id: 'ln_11', name: '阿维纽林', price: 20 },
+  { id: 'ln_12', name: '贝奥海域', price: 20 },
+  { id: 'ln_13', name: '七丘', price: 50 },
+  { id: 'ln_14', name: '隐海试验场', price: 30 },
+  { id: 'ln_15', name: '桑古伊斯狩原', price: 50 },
+];
 const EXPLORE_AREAS = [
   { id: 'area_ylg', name: '云陵谷', price: 20 },
   { id: 'area_jzc', name: '今州城', price: 30 },
@@ -120,7 +138,7 @@ function testDataStructure() {
   const items = flatItems(SERVICE_CATEGORIES);
 
   assertEq(SERVICE_CATEGORIES.length, 3, '分类数量 = 3');
-  assertEq(items.length, 8, '服务项总数 = 8');
+  assertEq(items.length, 9, '服务项总数 = 9');
 
   const trustIds = getTrustIds(SERVICE_CATEGORIES);
   assertEq(trustIds.size, 4, '托管类服务数量 = 4');
@@ -148,7 +166,7 @@ function testExploreData() {
   assertEq(areasTotal, expected, '区域总价 = ' + expected);
 
   // 所有项都有 id 和 price
-  const allItems = [...EXPLORE_COLLECT, ...EXPLORE_AREAS];
+  const allItems = [...EXPLORE_COLLECT, ...EXPLORE_AREAS, ...EXPLORE_LINAXITA];
   allItems.forEach((item) => {
     assert(typeof item.id === 'string' && item.id.length > 0, `  ${item.name} 有有效 id`);
     assert(typeof item.price === 'number' && item.price > 0, `  ${item.name} 价格 > 0 (¥${item.price})`);

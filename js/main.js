@@ -17,8 +17,9 @@ const SERVICE_CATEGORIES = [
   {
     name: '地图探索度',
     items: [
-      { id: 'explore_collect', name: '地图收集物', icon: '', desc: '点击弹窗 · 选配收集品', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'collect' },
-      { id: 'explore_areas', name: '瑝珑+黑海岸', icon: '', desc: '点击弹窗 · 选配12个探索区域', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'areas' },
+      { id: 'explore_collect', name: '地图收集物', icon: '', desc: '全收集', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'collect' },
+      { id: 'explore_areas', name: '瑝珑+黑海岸', icon: '', desc: '全收集', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'areas' },
+      { id: 'explore_linaxita_full', name: '黎那汐塔满探索全收集', icon: '', desc: '全收集', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'linaxita_full' },
     ],
   },
   {
@@ -39,6 +40,23 @@ const EXPLORE_COLLECT = [
   { id: 'ec_2', name: '承霄山定风铎', price: 30 },
   { id: 'ec_3', name: '黎那汐塔声匣', price: 70 },
   { id: 'ec_4', name: '罗伊冰原终声残卷', price: 60 },
+];
+const EXPLORE_LINAXITA = [
+  { id: 'ln_1', name: '拉古那城', price: 10 },
+  { id: 'ln_2', name: '埃弗拉德金库', price: 30 },
+  { id: 'ln_3', name: '悲叹墓岛', price: 30 },
+  { id: 'ln_4', name: '赞悼圣迹', price: 20 },
+  { id: 'ln_5', name: '拂风水畔', price: 20 },
+  { id: 'ln_6', name: '氤柔水境', price: 30 },
+  { id: 'ln_7', name: '槲生半岛', price: 30 },
+  { id: 'ln_8', name: '狄萨莱海脊', price: 40 },
+  { id: 'ln_9', name: '黎乔利群岛', price: 20 },
+  { id: 'ln_10', name: '下层金库', price: 30 },
+  { id: 'ln_11', name: '阿维纽林', price: 20 },
+  { id: 'ln_12', name: '贝奥海域', price: 20 },
+  { id: 'ln_13', name: '七丘', price: 50 },
+  { id: 'ln_14', name: '隐海试验场', price: 30 },
+  { id: 'ln_15', name: '桑古伊斯狩原', price: 50 },
 ];
 const EXPLORE_AREAS = [
   { id: 'area_ylg', name: '云陵谷', price: 20 },
@@ -239,9 +257,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // ====== 探索弹窗（双模式） ======
   let exploreMode = '';
 
-  function getExploreItems(mode) { return mode === 'collect' ? EXPLORE_COLLECT : EXPLORE_AREAS; }
-  function getExploreKey(mode) { return mode === 'collect' ? 'explore_collect' : 'explore_areas'; }
-  function getExploreLabel(mode) { return mode === 'collect' ? '收集品' : '瑝珑+黑海岸 · 区域'; }
+  function getExploreItems(mode) {
+    if (mode === 'collect') return EXPLORE_COLLECT;
+    if (mode === 'linaxita_full') return EXPLORE_LINAXITA;
+    return EXPLORE_AREAS;
+  }
+  function getExploreKey(mode) {
+    if (mode === 'collect') return 'explore_collect';
+    if (mode === 'linaxita_full') return 'explore_linaxita_full';
+    return 'explore_areas';
+  }
+  function getExploreLabel(mode) {
+    if (mode === 'collect') return '收集品';
+    if (mode === 'linaxita_full') return '黎那汐塔 · 区域';
+    return '瑝珑+黑海岸 · 区域';
+  }
 
   function openExploreModal(mode) {
     exploreMode = mode;
