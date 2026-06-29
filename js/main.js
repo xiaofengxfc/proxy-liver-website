@@ -20,13 +20,16 @@ const SERVICE_CATEGORIES = [
       { id: 'explore_collect', name: '地图收集物', icon: '', desc: '全收集', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'collect' },
       { id: 'explore_areas', name: '瑝珑+黑海岸', icon: '', desc: '全收集', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'areas' },
       { id: 'explore_linaxita_full', name: '黎那汐塔', icon: '', desc: '全收集', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'linaxita_full' },
+      { id: 'explore_luoyi', name: '罗伊冰原', icon: '', desc: '全收集', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'luoyi' },
     ],
   },
   {
-    name: '高难 · 挑战',
+    name: '数据坞',
     items: [
-      { id: 'tower', name: '深境之塔', icon: '', desc: '凹星、满星通关。熟练配队 + 操作，奖励拿满。', variants: [{ label: '单次', price: 89 }, { label: '包月满星', price: 199 }] },
-      { id: 'leveling', name: '等级冲刺 · 开荒', icon: '', desc: '新号速升、主线代过、世界等级突破。快速追赶大部队。', variants: [{ label: '10 级', price: 49 }, { label: '20 级', price: 89 }], tag: '新号必选' },
+      { id: 'data_all', name: '0~30级全包', icon: '', desc: '需账号等级40+', variants: [{ label: '全包', price: 300 }], tag: '推荐' },
+      { id: 'data_0_10', name: '0~10级', icon: '', desc: '5r/级', variants: [{ label: '5级', price: 25 }, { label: '10级', price: 50 }] },
+      { id: 'data_11_18', name: '11~18级', icon: '', desc: '8r/级', variants: [{ label: '4级', price: 32 }, { label: '8级', price: 64 }] },
+      { id: 'data_19_30', name: '19~30级', icon: '', desc: '15r/级', variants: [{ label: '6级', price: 90 }, { label: '12级', price: 180 }] },
     ],
   },
 ];
@@ -57,6 +60,26 @@ const EXPLORE_LINAXITA = [
   { id: 'ln_13', name: '七丘', price: 50 },
   { id: 'ln_14', name: '隐海试验场', price: 30 },
   { id: 'ln_15', name: '桑古伊斯狩原', price: 50 },
+];
+const EXPLORE_LUOYI = [
+  { id: 'ly_1', name: '冰原运输港', price: 10 },
+  { id: 'ly_2', name: '加拉尔冠阶', price: 15 },
+  { id: 'ly_3', name: '盲望之塌', price: 20 },
+  { id: 'ly_4', name: '元林遗址', price: 15 },
+  { id: 'ly_5', name: '覆海原', price: 20 },
+  { id: 'ly_6', name: '蚀刻平原', price: 40 },
+  { id: 'ly_7', name: '星炬学院', price: 20 },
+  { id: 'ly_8', name: '联运椎骨', price: 20 },
+  { id: 'ly_9', name: '牙列石壑', price: 40 },
+  { id: 'ly_10', name: '浮光林', price: 40 },
+  { id: 'ly_11', name: '陷足流川', price: 30 },
+  { id: 'ly_12', name: '复生丘原', price: 30 },
+  { id: 'ly_13', name: '隐喙深腹', price: 15 },
+  { id: 'ly_14', name: '巨目远野', price: 25 },
+  { id: 'ly_15', name: '落日堤屿', price: 20 },
+  { id: 'ly_16', name: '封存地', price: 10 },
+  { id: 'ly_17', name: '寂静断崖', price: 20 },
+  { id: 'ly_18', name: '恒黯之原', price: 20 },
 ];
 const EXPLORE_AREAS = [
   { id: 'area_ylg', name: '云陵谷', price: 20 },
@@ -253,6 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // ====== 切换选择 ======
   // 托管类（第一个分类）单选，其余分类多选
   const TRUST_IDS = new Set(SERVICE_CATEGORIES[0].items.map((s) => s.id));
+  // 数据坞（第三个分类）也单选
+  if (SERVICE_CATEGORIES[2]) {
+    SERVICE_CATEGORIES[2].items.forEach((s) => TRUST_IDS.add(s.id));
+  }
 
   // ====== 探索弹窗（双模式） ======
   let exploreMode = '';
@@ -260,16 +287,19 @@ document.addEventListener('DOMContentLoaded', () => {
   function getExploreItems(mode) {
     if (mode === 'collect') return EXPLORE_COLLECT;
     if (mode === 'linaxita_full') return EXPLORE_LINAXITA;
+    if (mode === 'luoyi') return EXPLORE_LUOYI;
     return EXPLORE_AREAS;
   }
   function getExploreKey(mode) {
     if (mode === 'collect') return 'explore_collect';
     if (mode === 'linaxita_full') return 'explore_linaxita_full';
+    if (mode === 'luoyi') return 'explore_luoyi';
     return 'explore_areas';
   }
   function getExploreLabel(mode) {
     if (mode === 'collect') return '收集品';
     if (mode === 'linaxita_full') return '黎那汐塔 · 区域';
+    if (mode === 'luoyi') return '罗伊冰原 · 区域';
     return '瑝珑+黑海岸 · 区域';
   }
 

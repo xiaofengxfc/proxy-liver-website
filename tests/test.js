@@ -22,13 +22,16 @@ const SERVICE_CATEGORIES = [
       { id: 'explore_collect', name: '地图收集物', isExplore: 'collect' },
       { id: 'explore_areas', name: '瑝珑+黑海岸', isExplore: 'areas' },
       { id: 'explore_linaxita_full', name: '黎那汐塔满探索全收集', isExplore: 'linaxita_full' },
+      { id: 'explore_luoyi', name: '罗伊冰原', isExplore: 'luoyi' },
     ],
   },
   {
-    name: '高难 · 挑战',
+    name: '数据坞',
     items: [
-      { id: 'tower', name: '深境之塔', price: 89 },
-      { id: 'leveling', name: '等级冲刺 · 开荒', price: 49 },
+      { id: 'data_all', name: '0~30级全包', price: 300 },
+      { id: 'data_0_10', name: '0~10级', price: 25 },
+      { id: 'data_11_18', name: '11~18级', price: 32 },
+      { id: 'data_19_30', name: '19~30级', price: 90 },
     ],
   },
 ];
@@ -56,6 +59,26 @@ const EXPLORE_LINAXITA = [
   { id: 'ln_13', name: '七丘', price: 50 },
   { id: 'ln_14', name: '隐海试验场', price: 30 },
   { id: 'ln_15', name: '桑古伊斯狩原', price: 50 },
+];
+const EXPLORE_LUOYI = [
+  { id: 'ly_1', name: '冰原运输港', price: 10 },
+  { id: 'ly_2', name: '加拉尔冠阶', price: 15 },
+  { id: 'ly_3', name: '盲望之塌', price: 20 },
+  { id: 'ly_4', name: '元林遗址', price: 15 },
+  { id: 'ly_5', name: '覆海原', price: 20 },
+  { id: 'ly_6', name: '蚀刻平原', price: 40 },
+  { id: 'ly_7', name: '星炬学院', price: 20 },
+  { id: 'ly_8', name: '联运椎骨', price: 20 },
+  { id: 'ly_9', name: '牙列石壑', price: 40 },
+  { id: 'ly_10', name: '浮光林', price: 40 },
+  { id: 'ly_11', name: '陷足流川', price: 30 },
+  { id: 'ly_12', name: '复生丘原', price: 30 },
+  { id: 'ly_13', name: '隐喙深腹', price: 15 },
+  { id: 'ly_14', name: '巨目远野', price: 25 },
+  { id: 'ly_15', name: '落日堤屿', price: 20 },
+  { id: 'ly_16', name: '封存地', price: 10 },
+  { id: 'ly_17', name: '寂静断崖', price: 20 },
+  { id: 'ly_18', name: '恒黯之原', price: 20 },
 ];
 const EXPLORE_AREAS = [
   { id: 'area_ylg', name: '云陵谷', price: 20 },
@@ -138,7 +161,7 @@ function testDataStructure() {
   const items = flatItems(SERVICE_CATEGORIES);
 
   assertEq(SERVICE_CATEGORIES.length, 3, '分类数量 = 3');
-  assertEq(items.length, 9, '服务项总数 = 9');
+  assertEq(items.length, 12, '服务项总数 = 12');
 
   const trustIds = getTrustIds(SERVICE_CATEGORIES);
   assertEq(trustIds.size, 4, '托管类服务数量 = 4');
@@ -166,7 +189,7 @@ function testExploreData() {
   assertEq(areasTotal, expected, '区域总价 = ' + expected);
 
   // 所有项都有 id 和 price
-  const allItems = [...EXPLORE_COLLECT, ...EXPLORE_AREAS, ...EXPLORE_LINAXITA];
+  const allItems = [...EXPLORE_COLLECT, ...EXPLORE_AREAS, ...EXPLORE_LINAXITA, ...EXPLORE_LUOYI];
   allItems.forEach((item) => {
     assert(typeof item.id === 'string' && item.id.length > 0, `  ${item.name} 有有效 id`);
     assert(typeof item.price === 'number' && item.price > 0, `  ${item.name} 价格 > 0 (¥${item.price})`);
@@ -179,10 +202,10 @@ function testSelectionLogic() {
   const items = flatItems(SERVICE_CATEGORIES);
   const trustIds = getTrustIds(SERVICE_CATEGORIES);
 
-  // 模拟多选：选中两个非托管服务
-  let selected = { tower: 0, leveling: 0 };
+  // 模拟多选：选中两个数据坞服务
+  let selected = { data_0_10: 0, data_11_18: 0 };
   let total = calcTotal(selected, items);
-  assertEq(total, 89 + 49, '多选合计 = 138');
+  assertEq(total, 25 + 32, '多选合计 = 57');
 
   // 托管单选：选至尊，日体应被移除
   selected = { daily: 0, ultimate: 0 };
@@ -210,9 +233,9 @@ function testPriceCalculation() {
   assertEq(total, 40, '日常套餐 = ¥40');
 
   // 多商品
-  selected = { daily: 0, tower: 0 };
+  selected = { daily: 0, data_all: 0 };
   total = calcTotal(selected, items);
-  assertEq(total, 40 + 89, '日常+深塔 = ¥129');
+  assertEq(total, 40 + 300, '日常+全包 = ¥340');
 
   // 探索弹窗
   selected = { explore_collect: 0, explore_areas: 0 };
