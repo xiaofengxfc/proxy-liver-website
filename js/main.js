@@ -58,19 +58,61 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ========== Contact Form (simple) ==========
+  // ========== Contact Form → POST → Telegram ==========
   const form = document.querySelector('.contact-form');
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = form.querySelector('.btn');
       const original = btn.textContent;
-      btn.textContent = '✓ 已提交 · 客服将尽快联系';
+
+      // 收集表单数据
+      const data = {
+        name: form.querySelector('#name')?.value?.trim() || '',
+        contact: form.querySelector('#contact-input')?.value?.trim() || '',
+        service: form.querySelector('#service')?.value || '',
+        message: form.querySelector('#message')?.value?.trim() || '',
+      };
+
+      if (!data.contact) {
+        btn.textContent = '⚠ 请填写联系方式';
+        btn.style.background = '#ff4d4f';
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.style.background = '';
+        }, 2000);
+        return;
+      }
+
+      btn.textContent = '⏳ 提交中...';
       btn.style.pointerEvents = 'none';
+
+      try {
+        const resp = await fetch('/api/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const result = await resp.json();
+
+        if (result.ok) {
+          btn.textContent = '✓ 已提交 · 客服将尽快联系';
+          btn.style.background = '';
+          form.reset();
+        } else {
+          btn.textContent = '✗ ' + (result.error || '提交失败');
+          btn.style.background = '#ff4d4f';
+        }
+      } catch {
+        btn.textContent = '✗ 网络错误，请重试';
+        btn.style.background = '#ff4d4f';
+      }
+
       setTimeout(() => {
         btn.textContent = original;
+        btn.style.background = '';
         btn.style.pointerEvents = '';
-        form.reset();
       }, 3000);
     });
   }

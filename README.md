@@ -55,6 +55,7 @@ open index.html
 | `js/main.js` | 导航栏滚动效果、滚入动画、FAQ 手风琴、表单拦截、数字递增动画 |
 | `_redirects` | SPA 回退：所有路径指向 `index.html` |
 | `_headers` | 安全头：`X-Content-Type-Options`、`X-Frame-Options` 等 |
+| `functions/api/submit.js` | Pages Function：接收表单 POST → 推送到 Telegram |
 
 ---
 
@@ -100,11 +101,51 @@ open index.html
 - `COUNT = 60` — 粒子数量（性能敏感，移动端建议 30–40）
 - `140`（连接距离阈值） — 两个粒子之间连线的最大像素距离
 
-### 6. 表单提交
+### 6. Telegram 推送（表单通知）
 
-当前表单提交仅为前端演示，提交后按钮显示"已提交"3 秒后重置。
+表单提交后自动通过 Telegram Bot 推送消息到你的手机。需要两步：
 
-**要接入真实通知**，修改 `js/main.js` 中 `form.addEventListener('submit', ...)` 部分，将数据发送到你的 Webhook / 邮箱 API / 企业微信机器人。
+#### 6a. 创建 Telegram Bot
+
+1. 在 Telegram 搜索 **[@BotFather](https://t.me/botfather)**，发送 `/newbot`
+2. 按提示设置 bot 名称和用户名
+3. BotFather 会返回一个 **HTTP API Token**，长这样：
+   ```
+   1234567890:ABCDefghIJKlmnoPQRstUVWXyz1234567890_
+   ```
+4. 把这个 token 保存好
+
+#### 6b. 获取 Chat ID
+
+```bash
+# 把你刚创建的 bot 拉到目标群组/频道（或直接给 bot 发条消息）
+# 然后访问这个 URL（替换 YOUR_TOKEN）：
+https://api.telegram.org/botYOUR_TOKEN/getUpdates
+
+# 返回的 JSON 里找 "chat":{"id": -123456789} 这个数字就是 Chat ID
+```
+
+#### 6c. 在 Cloudflare Pages 设置环境变量
+
+| 变量名 | 值 |
+|--------|-----|
+| `TELEGRAM_BOT_TOKEN` | BotFather 给你的 token |
+| `TELEGRAM_CHAT_ID` | 上面查到的 chat id（通常是负数） |
+
+**设置位置：** Cloudflare Dashboard → Pages → 你的项目 → **"设置" → "环境变量"** → 添加上述两个变量 → **"保存并重新部署"**
+
+部署后，每次有人填写表单并提交，你的 Telegram 会立刻收到这样一条消息：
+
+```
+📩 鸣潮代肝 · 新咨询
+
+👤 称呼：小明
+📞 联系方式：@wechat_id
+📋 服务类型：月卡套餐
+💬 备注：账号 60 级，需要深渊满星
+
+🕐 2025/01/15 14:30:00
+```
 
 ---
 
