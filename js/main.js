@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
           let label = '选配';
           let price = 0;
           if (isSelected) {
-            const detail = document.getElementById('explore_areas_detail');
+            const detail = document.getElementById(svc.id + '_detail');
             if (detail && detail.value) {
               const prices = detail.value.match(/¥(\d+)/g);
               const count = detail.value.split('\n').filter(Boolean).length;
