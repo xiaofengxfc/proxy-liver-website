@@ -105,9 +105,8 @@ const FLAT_ITEMS = SERVICE_CATEGORIES.flatMap((c) => c.items);
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ====== 选配器状态 ======
-  let selectedId = null;       // 当前选中的服务 id
-  let selectedVariant = 0;    // 当前选中的 variant 索引
+  // ====== 选配器状态（多选） ======
+  const selected = {};   // selected[服务id] = variant索引
 
   // ====== DOM 引用 ======
   const orderGrid = document.getElementById('order-grid');
@@ -117,18 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const orderSubmitBtn = document.getElementById('order-submit');
   const orderSummaryInput = document.getElementById('order-summary-input');
   const messageField = document.getElementById('message');
-
-  // ====== 获取当前选中服务对象 ======
-  function getSelectedSvc() {
-    if (!selectedId) return null;
-    return FLAT_ITEMS.find((s) => s.id === selectedId) || null;
-  }
-
-  function getSelectedVariant() {
-    const svc = getSelectedSvc();
-    if (!svc) return null;
-    return svc.variants[selectedVariant] || svc.variants[0];
-  }
 
   // ====== 渲染选配器 ======
   function renderOrderGrid() {
@@ -140,8 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
       html += `<div class="order-category-grid">`;
 
       cat.items.forEach((svc) => {
-        const isSelected = selectedId === svc.id;
-        const activeIdx = isSelected ? selectedVariant : 0;
+        const isSelected = selected[svc.id] !== undefined;
+        const activeIdx = isSelected ? selected[svc.id] : 0;
         const classes = [
           'order-item',
           isSelected ? 'selected' : '',
@@ -181,36 +168,53 @@ document.addEventListener('DOMContentLoaded', () => {
     orderGrid.innerHTML = html;
   }
 
-  // ====== 更新摘要栏 ======
+  // ====== 更新摘要栏（多选合计） ======
   function updateSummary() {
-    const svc = getSelectedSvc();
-    const variant = getSelectedVariant();
+    const entries = Object.entries(selected).filter(([id]) =>
+      FLAT_ITEMS.some((s) => s.id === id)
+    );
 
-    if (!svc || !variant) {
-      orderBar.classList.remove('show');
+    const hasItems = entries.length > 0;
+    orderBar.classList.toggle('show', hasItems);
+
+    if (!hasItems) {
       orderBarItems.innerHTML = '<span class="order-bar-empty">尚未选择任何服务</span>';
       orderTotal.textContent = '¥0';
       if (orderSummaryInput) orderSummaryInput.value = '';
       return;
     }
 
-    orderBar.classList.add('show');
+    // 渲染标签（每个选中项一个）
+    orderBarItems.innerHTML = entries.map(([id, vIdx]) => {
+      const svc = FLAT_ITEMS.find((s) => s.id === id);
+      const variant = svc.variants[vIdx] || svc.variants[0];
+      return `
+        <span class="order-bar-tag">
+          ${svc.icon} ${svc.name} · ${variant.label}
+          <span class="tag-price">¥${variant.price}</span>
+          <span class="tag-remove" data-service="${id}">✕</span>
+        </span>
+      `;
+    }).join('');
 
-    orderBarItems.innerHTML = `
-      <span class="order-bar-tag">
-        ${svc.icon} ${svc.name} · ${variant.label}
-        <span class="tag-price">¥${variant.price}</span>
-      </span>
-    `;
+    // 总价
+    const total = entries.reduce((sum, [id, vIdx]) => {
+      const svc = FLAT_ITEMS.find((s) => s.id === id);
+      const variant = svc.variants[vIdx] || svc.variants[0];
+      return sum + variant.price;
+    }, 0);
+    orderTotal.textContent = `¥${total}`;
 
-    orderTotal.textContent = `¥${variant.price}`;
+    // 写入隐藏字段 + 备注
+    const summaryLines = entries.map(([id, vIdx]) => {
+      const svc = FLAT_ITEMS.find((s) => s.id === id);
+      const variant = svc.variants[vIdx] || svc.variants[0];
+      return `${svc.icon} ${svc.name} — ${variant.label}  ¥${variant.price}`;
+    });
+    summaryLines.push(`━━━━━━━━━━━━━━━`);
+    summaryLines.push(`💰 合计：¥${total}`);
 
-    const summaryText = [
-      `${svc.icon} ${svc.name} — ${variant.label}  ¥${variant.price}`,
-      `━━━━━━━━━━━━━━━`,
-      `💰 应付：¥${variant.price}`,
-    ].join('\n');
-
+    const summaryText = summaryLines.join('\n');
     if (orderSummaryInput) orderSummaryInput.value = summaryText;
 
     if (messageField && !messageField.dataset.userEdited) {
@@ -218,20 +222,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ====== 选择服务（单选，自动取消其他） ======
-  function selectService(id) {
+  // ====== 切换选择（多选 — 点一下选，再点取消） ======
+  function toggleService(id) {
     const svc = FLAT_ITEMS.find((s) => s.id === id);
     if (!svc) return;
 
-    // 同个服务再次点击 → 不变（不能取消）
-    if (selectedId === id) return;
-
-    // 切换到新服务
-    selectedId = id;
-    selectedVariant = 0;
+    if (selected[id] !== undefined) {
+      delete selected[id];
+    } else {
+      selected[id] = 0; // 默认第一个 variant
+    }
     renderOrderGrid();
     updateSummary();
     bindOrderEvents();
+    bindRemoveEvents();
   }
 
   // ====== 切换 variant ======
@@ -240,28 +244,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const svc = FLAT_ITEMS.find((s) => s.id === serviceId);
     if (!svc || !svc.variants[idx]) return;
 
-    // 如果未选中任何服务，先选这个
-    if (selectedId !== serviceId) {
-      selectedId = serviceId;
+    // 如果未选中，先选上
+    if (selected[serviceId] === undefined) {
+      selected[serviceId] = idx;
+    } else {
+      selected[serviceId] = idx;
     }
-    selectedVariant = idx;
     renderOrderGrid();
     updateSummary();
     bindOrderEvents();
+    bindRemoveEvents();
+  }
+
+  // ====== 移除单项 ======
+  function removeItem(serviceId) {
+    delete selected[serviceId];
+    renderOrderGrid();
+    updateSummary();
+    bindOrderEvents();
+    bindRemoveEvents();
   }
 
   // ====== 绑定事件 ======
   function bindOrderEvents() {
-    // 点击卡片 → 单选切换
     document.querySelectorAll('.order-item').forEach((card) => {
       card.addEventListener('click', (e) => {
         if (e.target.closest('.order-variant')) return;
-        const id = card.dataset.service;
-        selectService(id);
+        toggleService(card.dataset.service);
       });
     });
 
-    // 点击 variant
     document.querySelectorAll('.order-variant').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -270,10 +282,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ====== 摘要栏移除按钮 ======
+  function bindRemoveEvents() {
+    document.querySelectorAll('.tag-remove').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeItem(btn.dataset.service);
+      });
+    });
+  }
+
   // ====== 提交订单 → 滚动联系表单 ======
   if (orderSubmitBtn) {
     orderSubmitBtn.addEventListener('click', () => {
-      if (!selectedId) return;
+      if (Object.keys(selected).length === 0) return;
       const contact = document.querySelector('#contact');
       if (contact) {
         contact.scrollIntoView({ behavior: 'smooth' });
@@ -295,6 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ====== 初始化 ======
   renderOrderGrid();
   bindOrderEvents();
+  bindRemoveEvents();
   updateSummary();
 
   // =============================================
@@ -391,10 +414,10 @@ document.addEventListener('DOMContentLoaded', () => {
           btn.style.background = '';
           form.reset();
           // 清空选中
-          selectedId = null;
-          selectedVariant = 0;
+          Object.keys(selected).forEach((k) => delete selected[k]);
           renderOrderGrid();
           bindOrderEvents();
+          bindRemoveEvents();
           updateSummary();
           if (messageField) delete messageField.dataset.userEdited;
         } else {
