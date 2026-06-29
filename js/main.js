@@ -19,7 +19,7 @@ const SERVICE_CATEGORIES = [
     items: [
       { id: 'explore_collect', name: '地图收集物', icon: '', desc: '全收集', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'collect' },
       { id: 'explore_areas', name: '瑝珑+黑海岸', icon: '', desc: '全收集', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'areas' },
-      { id: 'explore_linaxita_full', name: '黎那汐塔满探索全收集', icon: '', desc: '全收集', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'linaxita_full' },
+      { id: 'explore_linaxita_full', name: '黎那汐塔', icon: '', desc: '全收集', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: 'linaxita_full' },
     ],
   },
   {
