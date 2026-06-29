@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="order-bar-tag">
           ${svc.icon} ${svc.name} · ${label}
           <span class="tag-price">¥${price}</span>
-          ${svc.isExplorePkg ? '' : `<span class="tag-remove" data-service="${id}">✕</span>`}
+          <span class="tag-remove" data-service="${id}">✕</span>
         </span>
       `;
     }).join('');
@@ -347,7 +347,17 @@ document.addEventListener('DOMContentLoaded', () => {
         lines.push(`${item.name} ¥${item.price}`);
       }
     }));
-    if (total === 0) { closeExploreModal(); return; }
+    if (total === 0) {
+      // 如果之前已选中，清空
+      delete selected['explore_pkg'];
+      document.getElementById('explore_pkg_detail')?.remove();
+      renderOrderGrid();
+      updateSummary();
+      bindOrderEvents();
+      bindRemoveEvents();
+      closeExploreModal();
+      return;
+    }
     // 把结果写入 selected
     selected['explore_pkg'] = 0;
     itemPercent['explore_pkg'] = 100;
@@ -419,6 +429,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // ====== 移除单项 ======
   function removeItem(serviceId) {
     delete selected[serviceId];
+    // 清除探索选配明细
+    if (serviceId === 'explore_pkg') {
+      document.getElementById('explore_pkg_detail')?.remove();
+    }
     renderOrderGrid();
     updateSummary();
     bindOrderEvents();
