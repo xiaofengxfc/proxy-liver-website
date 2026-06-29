@@ -42,29 +42,13 @@ const SERVICE_CATEGORIES = [
     ],
   },
   {
-    name: '🗺️ 探索 · 收集',
+    name: '🗺️ 地图探索度',
     items: [
-      {
-        id: 'explore',
-        name: '地图全探索',
-        icon: '🗺️',
-        desc: '宝箱、声匣、潮汐之遗、解谜任务全收集。',
-        variants: [
-          { label: '单区域', price: 69 },
-          { label: '全区域', price: 199 },
-        ],
-        tag: '🔥 热销',
-      },
-      {
-        id: 'echo',
-        name: '声骸刷取',
-        icon: '💎',
-        desc: '指定套装、C1/C3/C4 主属性、副属性定制刷取。',
-        variants: [
-          { label: '10 次', price: 49 },
-          { label: '30 次', price: 129 },
-        ],
-      },
+      { id: 'collect_1', name: '瑝珑声匣', icon: '📦', desc: '需要全收集+70包前置', variants: [{ label: '搜集', price: 50 }], hasPercent: true },
+      { id: 'collect_2', name: '承霄山定风铎', icon: '🔔', desc: '', variants: [{ label: '搜集', price: 30 }], hasPercent: true },
+      { id: 'collect_3', name: '黎那汐塔声匣', icon: '📦', desc: '', variants: [{ label: '搜集', price: 70 }], hasPercent: true },
+      { id: 'collect_4', name: '罗伊冰原终声残卷', icon: '📜', desc: '', variants: [{ label: '搜集', price: 60 }], hasPercent: true },
+      { id: 'explore_pkg', name: '🌟 瑝珑+黑海岸', icon: '🌟', desc: '点击弹窗 · 选配12个探索区域', variants: [{ label: '选配', price: 0 }], tag: '点击选配 ▶', isExplorePkg: true },
     ],
   },
   {
@@ -98,10 +82,33 @@ const SERVICE_CATEGORIES = [
 // 拍平方便查找
 const FLAT_ITEMS = SERVICE_CATEGORIES.flatMap((c) => c.items);
 
+// ====== 瑝珑+黑海岸 子区域数据 ======
+const EXPLORE_ITEMS = [
+  { section: '🌟 瑝珑+黑海岸 · 区域列表', items: [
+    { id: 'area_ylg', name: '云陵谷', price: 20 },
+    { id: 'area_jzc', name: '今州城', price: 30 },
+    { id: 'area_zqtd', name: '中曲台地', price: 50 },
+    { id: 'area_hsgd', name: '荒石高地', price: 40 },
+    { id: 'area_gxgs', name: '归墟港市', price: 50 },
+    { id: 'area_wgzs', name: '无光之森', price: 35 },
+    { id: 'area_wmg', name: '无明港', price: 20 },
+    { id: 'area_bly', name: '北落野', price: 15 },
+    { id: 'area_yz', name: '怨鸟泽', price: 40 },
+    { id: 'area_hksm', name: '虎口山脉', price: 20 },
+    { id: 'area_cxs', name: '乘霄山', price: 50 },
+    { id: 'area_hha', name: '黑海岸', price: 50 },
+  ]},
+];
+
 document.addEventListener('DOMContentLoaded', () => {
 
   // ====== 选配器状态（多选） ======
   const selected = {};   // selected[服务id] = variant索引
+  const itemPercent = {}; // itemPercent[服务id] = 探索度 (1-100)
+
+  // ====== 探索选配状态 ======
+  const exploreSel = {};     // exploreSel[子项id] = true/false
+  const explorePct = {};     // explorePct[子项id] = 百分比
 
   // ====== DOM 引用 ======
   const orderGrid = document.getElementById('order-grid');
@@ -154,6 +161,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="order-variants" data-service="${svc.id}">
               ${variantsHtml}
             </div>
+            ${svc.hasPercent ? `
+            <div class="order-percent" data-service="${svc.id}">
+              <button class="percent-btn" data-action="minus">−</button>
+              <span class="percent-value">${itemPercent[svc.id] || 100}%</span>
+              <button class="percent-btn" data-action="plus">+</button>
+            </div>` : ''}
           </div>
         `;
       });
@@ -196,16 +209,34 @@ document.addEventListener('DOMContentLoaded', () => {
     // 总价
     const total = entries.reduce((sum, [id, vIdx]) => {
       const svc = FLAT_ITEMS.find((s) => s.id === id);
+      if (svc.isExplorePkg) {
+        // 探索选配：从 hidden input 取明细算总价
+        const detail = document.getElementById('explore_pkg_detail');
+        if (detail && detail.value) {
+          const matched = detail.value.match(/¥(\d+)/g);
+          if (matched) return sum + matched.reduce((s, m) => s + parseInt(m.replace('¥', ''), 10), 0);
+        }
+        return sum;
+      }
       const variant = svc.variants[vIdx] || svc.variants[0];
-      return sum + variant.price;
+      const pct = svc.hasPercent ? (itemPercent[id] ?? 100) / 100 : 1;
+      return sum + Math.round(variant.price * pct);
     }, 0);
     orderTotal.textContent = `¥${total}`;
 
     // 写入隐藏字段 + 备注
     const summaryLines = entries.map(([id, vIdx]) => {
       const svc = FLAT_ITEMS.find((s) => s.id === id);
+      if (svc.isExplorePkg) {
+        const detail = document.getElementById('explore_pkg_detail');
+        const dl = detail?.value ? detail.value.split('\n') : [];
+        return ['🗺️ 探索选配'].concat(dl.map((l) => '  ' + l)).join('\n');
+      }
       const variant = svc.variants[vIdx] || svc.variants[0];
-      return `${svc.icon} ${svc.name} — ${variant.label}  ¥${variant.price}`;
+      const pct = svc.hasPercent ? (itemPercent[id] ?? 100) / 100 : 1;
+      const adjusted = Math.round(variant.price * pct);
+      const pctLabel = svc.hasPercent ? ` ${itemPercent[id] ?? 100}%` : '';
+      return `${svc.icon} ${svc.name}${pctLabel} — ${variant.label}  ¥${adjusted}`;
     });
     summaryLines.push(`━━━━━━━━━━━━━━━`);
     summaryLines.push(`💰 合计：¥${total}`);
@@ -222,9 +253,117 @@ document.addEventListener('DOMContentLoaded', () => {
   // 托管类（第一个分类）单选，其余分类多选
   const TRUST_IDS = new Set(SERVICE_CATEGORIES[0].items.map((s) => s.id));
 
+  // ====== 探索弹窗 ======
+  function openExploreModal() {
+    // 初始化未选中的项
+    EXPLORE_ITEMS.forEach((sec) => sec.items.forEach((item) => {
+      if (exploreSel[item.id] === undefined) exploreSel[item.id] = false;
+      if (explorePct[item.id] === undefined) explorePct[item.id] = 100;
+    }));
+    renderExploreModal();
+    document.getElementById('explore-modal').classList.add('show');
+  }
+  function closeExploreModal() {
+    document.getElementById('explore-modal').classList.remove('show');
+  }
+  function renderExploreModal() {
+    let html = '';
+    EXPLORE_ITEMS.forEach((sec) => {
+      html += `<div class="explore-section-title">${sec.section}</div>`;
+      sec.items.forEach((item) => {
+        const sel = exploreSel[item.id];
+        const pct = explorePct[item.id] ?? 100;
+        const adjusted = Math.round(item.price * pct / 100);
+        html += `
+          <div class="explore-item${sel ? ' selected' : ''}" data-eid="${item.id}">
+            <div class="explore-check">${sel ? '✓' : ''}</div>
+            <span class="explore-item-name">${item.name}</span>
+            <span class="explore-item-price">¥${adjusted}</span>
+            <div class="order-percent" data-service="${item.id}">
+              <button class="percent-btn" data-action="minus">−</button>
+              <span class="percent-value">${pct}%</span>
+              <button class="percent-btn" data-action="plus">+</button>
+            </div>
+          </div>`;
+      });
+    });
+    document.getElementById('explore-modal-body').innerHTML = html;
+    updateExploreTotal();
+    bindExploreEvents();
+  }
+  function updateExploreTotal() {
+    let total = 0;
+    EXPLORE_ITEMS.forEach((sec) => sec.items.forEach((item) => {
+      if (exploreSel[item.id]) {
+        total += Math.round(item.price * (explorePct[item.id] ?? 100) / 100);
+      }
+    }));
+    document.getElementById('explore-total').innerHTML = `¥${total}`;
+  }
+  function bindExploreEvents() {
+    document.querySelectorAll('#explore-modal-body .explore-item').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        if (e.target.closest('.order-percent')) return;
+        const id = el.dataset.eid;
+        exploreSel[id] = !exploreSel[id];
+        renderExploreModal();
+      });
+    });
+    document.querySelectorAll('#explore-modal-body .percent-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const svcId = btn.closest('.order-percent').dataset.service;
+        const cur = explorePct[svcId] ?? 100;
+        const delta = btn.dataset.action === 'plus' ? 10 : -10;
+        const next = Math.max(10, Math.min(100, cur + delta));
+        explorePct[svcId] = next;
+        renderExploreModal();
+      });
+    });
+  }
+  document.getElementById('explore-modal-close').addEventListener('click', closeExploreModal);
+  document.getElementById('explore-modal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeExploreModal();
+  });
+  document.getElementById('explore-confirm').addEventListener('click', () => {
+    // 计算总额
+    let total = 0;
+    const lines = [];
+    EXPLORE_ITEMS.forEach((sec) => sec.items.forEach((item) => {
+      if (exploreSel[item.id]) {
+        const pct = explorePct[item.id] ?? 100;
+        const adjusted = Math.round(item.price * pct / 100);
+        total += adjusted;
+        lines.push(`${item.name} ${pct}% ¥${adjusted}`);
+      }
+    }));
+    if (total === 0) { closeExploreModal(); return; }
+    // 把结果写入 selected
+    selected['explore_pkg'] = 0;
+    itemPercent['explore_pkg'] = 100;
+    // 存储明细到 DOM
+    document.getElementById('explore_pkg_detail')?.remove();
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.id = 'explore_pkg_detail';
+    input.value = lines.join('\n');
+    document.body.appendChild(input);
+    renderOrderGrid();
+    updateSummary();
+    bindOrderEvents();
+    bindRemoveEvents();
+    closeExploreModal();
+  });
+
   function toggleService(id) {
     const svc = FLAT_ITEMS.find((s) => s.id === id);
     if (!svc) return;
+
+    // 探索选配套餐 → 打开弹窗
+    if (svc.isExplorePkg) {
+      openExploreModal();
+      return;
+    }
 
     if (selected[id] !== undefined) {
       delete selected[id];
@@ -234,6 +373,9 @@ document.addEventListener('DOMContentLoaded', () => {
         TRUST_IDS.forEach((tid) => { if (tid !== id) delete selected[tid]; });
       }
       selected[id] = 0; // 默认第一个 variant
+      if (svc.hasPercent && itemPercent[id] === undefined) {
+        itemPercent[id] = 100;
+      }
     }
     renderOrderGrid();
     updateSummary();
@@ -273,11 +415,26 @@ document.addEventListener('DOMContentLoaded', () => {
     bindRemoveEvents();
   }
 
+  // ====== 调整探索度百分比 ======
+  function adjustPercent(serviceId, delta) {
+    const svc = FLAT_ITEMS.find((s) => s.id === serviceId);
+    if (!svc || !svc.hasPercent) return;
+    const cur = itemPercent[serviceId] ?? 100;
+    let next = Math.round(cur / 10 + delta) * 10;
+    next = Math.max(10, Math.min(100, next));
+    itemPercent[serviceId] = next;
+    renderOrderGrid();
+    updateSummary();
+    bindOrderEvents();
+    bindRemoveEvents();
+  }
+
   // ====== 绑定事件 ======
   function bindOrderEvents() {
     document.querySelectorAll('.order-item').forEach((card) => {
       card.addEventListener('click', (e) => {
         if (e.target.closest('.order-variant')) return;
+        if (e.target.closest('.order-percent')) return;
         toggleService(card.dataset.service);
       });
     });
@@ -286,6 +443,25 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         selectVariant(btn.dataset.service, btn.dataset.idx);
+      });
+    });
+
+    document.querySelectorAll('.percent-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const svcId = btn.closest('.order-percent').dataset.service;
+        const delta = btn.dataset.action === 'plus' ? 1 : -1;
+        adjustPercent(svcId, delta);
+      });
+    });
+
+    document.querySelectorAll('.percent-value').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const svcId = el.closest('.order-percent').dataset.service;
+        const cur = itemPercent[svcId] ?? 100;
+        const next = cur >= 100 ? 10 : 100;
+        adjustPercent(svcId, next - cur);
       });
     });
   }
@@ -321,8 +497,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 0);
     const lines = entries.map(([id, vIdx]) => {
       const svc = items.find((s) => s.id === id);
+      if (svc.isExplorePkg) {
+        const detail = document.getElementById('explore_pkg_detail');
+        return detail?.value ? ['🗺️ 探索选配'].concat(detail.value.split('\n').map((l) => '  ' + l)).join('\n') : '🗺️ 探索选配';
+      }
       const v = svc.variants[vIdx] || svc.variants[0];
-      return `${svc.icon} ${svc.name} — ${v.label}  ¥${v.price}`;
+      const pct = svc.hasPercent ? (itemPercent[id] ?? 100) / 100 : 1;
+      return `${svc.icon} ${svc.name} — ${v.label}  ¥${Math.round(v.price * pct)}`;
     });
     lines.push(`━━━━━━━━━━━━━━━`);
     lines.push(`💰 合计：¥${total}`);
