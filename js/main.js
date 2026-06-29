@@ -348,9 +348,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // ====== 切换选择 ======
   // 托管类（第一个分类）单选，其余分类多选
   const TRUST_IDS = new Set(SERVICE_CATEGORIES[0].items.map((s) => s.id));
-  // 数据坞（第三个分类）也单选
-  if (SERVICE_CATEGORIES[3]) {
-    SERVICE_CATEGORIES[3].items.forEach((s) => TRUST_IDS.add(s.id));
+  // 数据坞（第六个分类）也单选
+  if (SERVICE_CATEGORIES[5]) {
+    SERVICE_CATEGORIES[5].items.forEach((s) => TRUST_IDS.add(s.id));
   }
 
   // ====== 探索弹窗（双模式） ======
