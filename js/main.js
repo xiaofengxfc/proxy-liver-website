@@ -5,76 +5,30 @@
 // ====== 服务目录（按分类） ======
 const SERVICE_CATEGORIES = [
   {
-    name: '📅 托管',
+    name: '托管',
     desc: '期间会领取兑换码 + 版本签到 + 邮箱',
     items: [
-      {
-        id: 'daily',
-        name: '日常套餐',
-        icon: '📋',
-        desc: '每日活跃打满',
-        variants: [{ label: '月度', price: 40 }],
-      },
-      {
-        id: 'daily_weekly',
-        name: '日体套餐',
-        icon: '⚔️',
-        desc: '每日活跃 + 每日体力 + 周本',
-        variants: [{ label: '月度', price: 80 }],
-        tag: '最受欢迎',
-      },
-      {
-        id: 'premium',
-        name: '精托套餐',
-        icon: '⭐',
-        desc: '日体套餐 + 期间活动 + 千道门扉 + 电台满级',
-        variants: [{ label: '月度', price: 200 }],
-      },
-      {
-        id: 'ultimate',
-        name: '至尊套餐',
-        icon: '👑',
-        desc: '全托套餐 + 队伍升级角色武器培养材料 + 规划账号强度养成',
-        variants: [{ label: '月度', price: 300 }],
-        featured: true,
-        tag: '推荐',
-      },
+      { id: 'daily', name: '日常套餐', icon: '', desc: '每日活跃打满', variants: [{ label: '月度', price: 40 }] },
+      { id: 'daily_weekly', name: '日体套餐', icon: '', desc: '每日活跃 + 每日体力 + 周本', variants: [{ label: '月度', price: 80 }], tag: '最受欢迎' },
+      { id: 'premium', name: '精托套餐', icon: '', desc: '日体套餐 + 期间活动 + 千道门扉 + 电台满级', variants: [{ label: '月度', price: 200 }] },
+      { id: 'ultimate', name: '至尊套餐', icon: '', desc: '全托套餐 + 队伍升级角色武器培养材料 + 规划账号强度养成', variants: [{ label: '月度', price: 300 }], featured: true, tag: '推荐' },
     ],
   },
   {
-    name: '🗺️ 地图探索度',
+    name: '地图探索度',
     items: [
-      { id: 'collect_1', name: '瑝珑声匣', icon: '📦', desc: '需要全收集+70包前置', variants: [{ label: '搜集', price: 50 }] },
-      { id: 'collect_2', name: '承霄山定风铎', icon: '🔔', desc: '', variants: [{ label: '搜集', price: 30 }] },
-      { id: 'collect_3', name: '黎那汐塔声匣', icon: '📦', desc: '', variants: [{ label: '搜集', price: 70 }] },
-      { id: 'collect_4', name: '罗伊冰原终声残卷', icon: '📜', desc: '', variants: [{ label: '搜集', price: 60 }] },
-      { id: 'explore_pkg', name: '🌟 瑝珑+黑海岸', icon: '🌟', desc: '点击弹窗 · 选配12个探索区域', variants: [{ label: '选配', price: 0 }], tag: '点击选配 ▶', isExplorePkg: true },
+      { id: 'collect_1', name: '瑝珑声匣', icon: '', desc: '需要全收集+70包前置', variants: [{ label: '搜集', price: 50 }] },
+      { id: 'collect_2', name: '承霄山定风铎', icon: '', desc: '', variants: [{ label: '搜集', price: 30 }] },
+      { id: 'collect_3', name: '黎那汐塔声匣', icon: '', desc: '', variants: [{ label: '搜集', price: 70 }] },
+      { id: 'collect_4', name: '罗伊冰原终声残卷', icon: '', desc: '', variants: [{ label: '搜集', price: 60 }] },
+      { id: 'explore_pkg', name: '瑝珑+黑海岸', icon: '', desc: '点击弹窗 · 选配12个探索区域', variants: [{ label: '选配', price: 0 }], tag: '点击选配', isExplorePkg: true },
     ],
   },
   {
-    name: '⚡ 高难 · 挑战',
+    name: '高难 · 挑战',
     items: [
-      {
-        id: 'tower',
-        name: '深境之塔',
-        icon: '🏆',
-        desc: '凹星、满星通关。熟练配队 + 操作，奖励拿满。',
-        variants: [
-          { label: '单次', price: 89 },
-          { label: '包月满星', price: 199 },
-        ],
-      },
-      {
-        id: 'leveling',
-        name: '等级冲刺 · 开荒',
-        icon: '🚀',
-        desc: '新号速升、主线代过、世界等级突破。快速追赶大部队。',
-        variants: [
-          { label: '10 级', price: 49 },
-          { label: '20 级', price: 89 },
-        ],
-        tag: '新号必选',
-      },
+      { id: 'tower', name: '深境之塔', icon: '', desc: '凹星、满星通关。熟练配队 + 操作，奖励拿满。', variants: [{ label: '单次', price: 89 }, { label: '包月满星', price: 199 }] },
+      { id: 'leveling', name: '等级冲刺 · 开荒', icon: '', desc: '新号速升、主线代过、世界等级突破。快速追赶大部队。', variants: [{ label: '10 级', price: 49 }, { label: '20 级', price: 89 }], tag: '新号必选' },
     ],
   },
 ];
@@ -84,7 +38,7 @@ const FLAT_ITEMS = SERVICE_CATEGORIES.flatMap((c) => c.items);
 
 // ====== 瑝珑+黑海岸 子区域数据 ======
 const EXPLORE_ITEMS = [
-  { section: '🌟 瑝珑+黑海岸 · 区域列表', items: [
+  { section: '瑝珑+黑海岸 · 区域列表', items: [
     { id: 'area_ylg', name: '云陵谷', price: 20 },
     { id: 'area_jzc', name: '今州城', price: 30 },
     { id: 'area_zqtd', name: '中曲台地', price: 50 },
@@ -170,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ${badgeHtml}
             <div class="order-item-header">
               <div class="order-check">${isSelected ? '✓' : ''}</div>
-              <span class="order-item-icon">${svc.icon}</span>
               <span class="order-item-title">${svc.name}</span>
             </div>
             <div class="order-item-desc">${svc.desc}</div>
@@ -228,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       return `
         <span class="order-bar-tag">
-          ${svc.icon} ${svc.name} · ${label}
+          ${svc.name} · ${label}
           <span class="tag-price">¥${price}</span>
           <span class="tag-remove" data-service="${id}">✕</span>
         </span>
@@ -265,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const pct = svc.hasPercent ? (itemPercent[id] ?? 100) / 100 : 1;
       const adjusted = Math.round(variant.price * pct);
       const pctLabel = svc.hasPercent ? ` ${itemPercent[id] ?? 100}%` : '';
-      return `${svc.icon} ${svc.name}${pctLabel} — ${variant.label}  ¥${adjusted}`;
+      return `${svc.name}${pctLabel} — ${variant.label}  ¥${adjusted}`;
     });
     summaryLines.push(`━━━━━━━━━━━━━━━`);
     summaryLines.push(`💰 合计：¥${total}`);
@@ -536,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const v = svc.variants[vIdx] || svc.variants[0];
       const pct = svc.hasPercent ? (itemPercent[id] ?? 100) / 100 : 1;
-      return `${svc.icon} ${svc.name} — ${v.label}  ¥${Math.round(v.price * pct)}`;
+      return `${svc.name} — ${v.label}  ¥${Math.round(v.price * pct)}`;
     });
     lines.push(`━━━━━━━━━━━━━━━`);
     lines.push(`💰 合计：¥${total}`);
