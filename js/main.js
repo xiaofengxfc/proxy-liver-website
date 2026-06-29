@@ -24,6 +24,19 @@ const SERVICE_CATEGORIES = [
     ],
   },
   {
+    name: '任务',
+    items: [
+      { id: 'quest_tidal_1', name: '潮汐·第一章(1~6幕)', icon: '', desc: '15r/幕', variants: [{ label: '1幕', price: 15 }, { label: '3幕', price: 45 }, { label: '6幕', price: 90 }] },
+      { id: 'quest_tidal_2', name: '潮汐·第一章(7~8幕)', icon: '', desc: '20r/幕', variants: [{ label: '1幕', price: 20 }, { label: '2幕', price: 40 }] },
+      { id: 'quest_tidal_3', name: '潮汐·第二章(1~12幕)', icon: '', desc: '20r/幕', variants: [{ label: '6幕', price: 120 }, { label: '12幕', price: 240 }] },
+      { id: 'quest_tidal_4', name: '潮汐·第三章(1~5幕)', icon: '', desc: '20r/幕', variants: [{ label: '3幕', price: 60 }, { label: '5幕', price: 100 }] },
+      { id: 'quest_companion', name: '伴星任务', icon: '', desc: '12r/幕', variants: [{ label: '1幕', price: 12 }, { label: '5幕', price: 60 }] },
+      { id: 'quest_danger', name: '危行任务', icon: '', desc: '12r/个', variants: [{ label: '1个', price: 12 }, { label: '5个', price: 60 }] },
+      { id: 'quest_chronicle', name: '纪闻任务', icon: '', desc: '5~15r 看具体任务定价', variants: [{ label: '咨询', price: 10 }] },
+      { id: 'quest_hidden', name: '隐藏任务', icon: '', desc: '5~15r 看具体任务定价', variants: [{ label: '咨询', price: 10 }] },
+    ],
+  },
+  {
     name: '数据坞',
     items: [
       { id: 'data_all', name: '0~30级全包', icon: '', desc: '需账号等级40+', variants: [{ label: '全包', price: 300 }], tag: '推荐' },
@@ -277,8 +290,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // 托管类（第一个分类）单选，其余分类多选
   const TRUST_IDS = new Set(SERVICE_CATEGORIES[0].items.map((s) => s.id));
   // 数据坞（第三个分类）也单选
-  if (SERVICE_CATEGORIES[2]) {
-    SERVICE_CATEGORIES[2].items.forEach((s) => TRUST_IDS.add(s.id));
+  if (SERVICE_CATEGORIES[3]) {
+    SERVICE_CATEGORIES[3].items.forEach((s) => TRUST_IDS.add(s.id));
   }
 
   // ====== 探索弹窗（双模式） ======

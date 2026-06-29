@@ -26,6 +26,19 @@ const SERVICE_CATEGORIES = [
     ],
   },
   {
+    name: '任务',
+    items: [
+      { id: 'quest_tidal_1', name: '潮汐·第一章(1~6幕)', price: 15 },
+      { id: 'quest_tidal_2', name: '潮汐·第一章(7~8幕)', price: 20 },
+      { id: 'quest_tidal_3', name: '潮汐·第二章(1~12幕)', price: 120 },
+      { id: 'quest_tidal_4', name: '潮汐·第三章(1~5幕)', price: 60 },
+      { id: 'quest_companion', name: '伴星任务', price: 12 },
+      { id: 'quest_danger', name: '危行任务', price: 12 },
+      { id: 'quest_chronicle', name: '纪闻任务', price: 10 },
+      { id: 'quest_hidden', name: '隐藏任务', price: 10 },
+    ],
+  },
+  {
     name: '数据坞',
     items: [
       { id: 'data_all', name: '0~30级全包', price: 300 },
@@ -160,8 +173,8 @@ function testDataStructure() {
 
   const items = flatItems(SERVICE_CATEGORIES);
 
-  assertEq(SERVICE_CATEGORIES.length, 3, '分类数量 = 3');
-  assertEq(items.length, 12, '服务项总数 = 12');
+  assertEq(SERVICE_CATEGORIES.length, 4, '分类数量 = 4');
+  assertEq(items.length, 20, '服务项总数 = 20');
 
   const trustIds = getTrustIds(SERVICE_CATEGORIES);
   assertEq(trustIds.size, 4, '托管类服务数量 = 4');
