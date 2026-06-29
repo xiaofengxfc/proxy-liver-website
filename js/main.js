@@ -26,10 +26,10 @@ const SERVICE_CATEGORIES = [
   {
     name: '任务',
     items: [
-      { id: 'quest_tidal_1', name: '潮汐·第一章(1~6幕)', icon: '', desc: '15r/幕', variants: [{ label: '1幕', price: 15 }, { label: '3幕', price: 45 }, { label: '6幕', price: 90 }] },
-      { id: 'quest_tidal_2', name: '潮汐·第一章(7~8幕)', icon: '', desc: '20r/幕', variants: [{ label: '1幕', price: 20 }, { label: '2幕', price: 40 }] },
-      { id: 'quest_tidal_3', name: '潮汐·第二章(1~12幕)', icon: '', desc: '20r/幕', variants: [{ label: '6幕', price: 120 }, { label: '12幕', price: 240 }] },
-      { id: 'quest_tidal_4', name: '潮汐·第三章(1~5幕)', icon: '', desc: '20r/幕', variants: [{ label: '3幕', price: 60 }, { label: '5幕', price: 100 }] },
+      { id: 'quest_tidal_1', name: '潮汐·第一章(1~6幕)', icon: '', desc: '15r/幕', variants: [{ label: '幕', price: 15 }], hasQty: true, unit: '幕', maxQty: 6 },
+      { id: 'quest_tidal_2', name: '潮汐·第一章(7~8幕)', icon: '', desc: '20r/幕', variants: [{ label: '幕', price: 20 }], hasQty: true, unit: '幕', maxQty: 2 },
+      { id: 'quest_tidal_3', name: '潮汐·第二章(1~12幕)', icon: '', desc: '20r/幕', variants: [{ label: '幕', price: 20 }], hasQty: true, unit: '幕', maxQty: 12 },
+      { id: 'quest_tidal_4', name: '潮汐·第三章(1~5幕)', icon: '', desc: '20r/幕', variants: [{ label: '幕', price: 20 }], hasQty: true, unit: '幕', maxQty: 5 },
       { id: 'quest_companion', name: '伴星任务', icon: '', desc: '12r/幕', variants: [{ label: '幕', price: 12 }], hasQty: true, unit: '幕', maxQty: 20 },
       { id: 'quest_danger', name: '危行任务', icon: '', desc: '12r/个', variants: [{ label: '个', price: 12 }], hasQty: true, unit: '个', maxQty: 20 },
       { id: 'quest_chronicle', name: '纪闻任务', icon: '', desc: '5~15r 看具体任务定价', variants: [{ label: '咨询', price: 0 }], noPriceTag: true },
