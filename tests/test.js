@@ -39,12 +39,17 @@ const SERVICE_CATEGORIES = [
     ],
   },
   {
-    name: '活动',
+    name: '周期活动',
     items: [
       { id: 'evt_big', name: '大活动', price: 0 },
       { id: 'evt_small', name: '小活动', price: 20 },
       { id: 'evt_tower', name: '深塔', price: 30 },
       { id: 'evt_sea', name: '海墟', price: 30 },
+    ],
+  },
+  {
+    name: '常驻活动',
+    items: [
       { id: 'evt_perm_1', name: '失序梦图', price: 60 },
       { id: 'evt_perm_2', name: '老人与海', price: 80 },
       { id: 'evt_perm_3', name: '团团转', price: 40 },
@@ -197,7 +202,7 @@ function testDataStructure() {
 
   const items = flatItems(SERVICE_CATEGORIES);
 
-  assertEq(SERVICE_CATEGORIES.length, 5, '分类数量 = 5');
+  assertEq(SERVICE_CATEGORIES.length, 6, '分类数量 = 6');
   assertEq(items.length, 39, '服务项总数 = 39');
 
   const trustIds = getTrustIds(SERVICE_CATEGORIES);
