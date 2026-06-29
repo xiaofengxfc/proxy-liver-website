@@ -197,11 +197,24 @@ document.addEventListener('DOMContentLoaded', () => {
     orderBarItems.innerHTML = entries.map(([id, vIdx]) => {
       const svc = FLAT_ITEMS.find((s) => s.id === id);
       const variant = svc.variants[vIdx] || svc.variants[0];
+      let price = variant.price;
+      let label = variant.label;
+      if (svc.isExplorePkg) {
+        const detail = document.getElementById('explore_pkg_detail');
+        if (detail && detail.value) {
+          const prices = detail.value.match(/¥(\d+)/g);
+          if (prices) {
+            price = prices.reduce((s, m) => s + parseInt(m.replace('¥', ''), 10), 0);
+          }
+          const selected = detail.value.split('\n').filter(Boolean);
+          label = selected.length + '个区域';
+        }
+      }
       return `
         <span class="order-bar-tag">
-          ${svc.icon} ${svc.name} · ${variant.label}
-          <span class="tag-price">¥${variant.price}</span>
-          <span class="tag-remove" data-service="${id}">✕</span>
+          ${svc.icon} ${svc.name} · ${label}
+          <span class="tag-price">¥${price}</span>
+          ${svc.isExplorePkg ? '' : `<span class="tag-remove" data-service="${id}">✕</span>`}
         </span>
       `;
     }).join('');
@@ -473,8 +486,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const entries = Object.entries(selected).filter(([id]) => items.some((s) => s.id === id));
     const total = entries.reduce((sum, [id, vIdx]) => {
       const svc = items.find((s) => s.id === id);
+      if (svc.isExplorePkg) {
+        const detail = document.getElementById('explore_pkg_detail');
+        if (detail && detail.value) {
+          const prices = detail.value.match(/¥(\d+)/g);
+          if (prices) return sum + prices.reduce((s, m) => s + parseInt(m.replace('¥', ''), 10), 0);
+        }
+        return sum;
+      }
       const v = svc.variants[vIdx] || svc.variants[0];
-      return sum + v.price;
+      const pct = svc.hasPercent ? (itemPercent[id] ?? 100) / 100 : 1;
+      return sum + Math.round(v.price * pct);
     }, 0);
     const lines = entries.map(([id, vIdx]) => {
       const svc = items.find((s) => s.id === id);
