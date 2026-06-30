@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const items = getExploreItems(mode);
     items.forEach((item) => {
       if (exploreSel[item.id] === undefined) exploreSel[item.id] = false;
-      if (explorePct[item.id] === undefined) explorePct[item.id] = 100;
+      if (explorePct[item.id] === undefined) explorePct[item.id] = 0;
     });
     document.getElementById('explore-modal-title').textContent = getExploreLabel(mode);
     renderExploreModal();
@@ -397,10 +397,10 @@ document.addEventListener('DOMContentLoaded', () => {
       <button class="btn btn-secondary" style="width:100%;justify-content:center;">${allSel ? '取消全选' : '☑ 全选'}</button>
     </div>`;
     html += `<div class="explore-section-title">${getExploreLabel(exploreMode)}</div>`;
-    html += '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:6px;font-family:var(--font-mono);">勾选区域后可用百分比微调探索度</div>';
+    html += '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:6px;font-family:var(--font-mono);">勾选后使用 + 号增加探索度，价格按比例计算</div>';
     items.forEach((item) => {
       const sel = exploreSel[item.id];
-      const pct = explorePct[item.id] || 100;
+      const pct = explorePct[item.id] || 0;
       const adjusted = Math.round(item.price * pct / 100);
       html += `<div class="explore-item${sel ? ' selected' : ''}" data-eid="${item.id}">`;
       html += `<div class="explore-check">${sel ? '✓' : ''}</div>`;
@@ -423,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const items = getExploreItems(exploreMode);
     const total = items.reduce((s, item) => {
       if (!exploreSel[item.id]) return s;
-      const pct = explorePct[item.id] || 100;
+      const pct = explorePct[item.id] || 0;
       return s + Math.round(item.price * pct / 100);
     }, 0);
     document.getElementById('explore-total').innerHTML = `¥${total}`;
@@ -446,9 +446,9 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const eid = btn.closest('.explore-pct').dataset.eid;
-        const cur = explorePct[eid] || 100;
+        const cur = explorePct[eid] || 0;
         const delta = btn.dataset.action === 'plus' ? 10 : -10;
-        const next = Math.max(10, Math.min(100, cur + delta));
+        const next = Math.max(0, Math.min(100, cur + delta));
         explorePct[eid] = next;
         renderExploreModal();
       });
@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const lines = [];
     items.forEach((item) => {
       if (exploreSel[item.id]) {
-        const pct = explorePct[item.id] || 100;
+        const pct = explorePct[item.id] || 0;
         const adjusted = Math.round(item.price * pct / 100);
         total += adjusted;
         lines.push(`${item.name} ${pct}% ¥${adjusted}`);
