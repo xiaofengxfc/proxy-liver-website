@@ -320,7 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (svc.isExplorePkg) {
         const detail = document.getElementById(svc.id + '_detail');
         const dl = detail?.value ? detail.value.split('\n') : [];
-        return ['瑝珑+黑海岸'].concat(dl.map((l) => '  ' + l)).join('\n');
+        return [svc.name].concat(dl.map((l) => '  ' + l)).join('\n');
       }
       if (svc.hasQty) {
         const qty = itemQty[id] || 1;
@@ -636,7 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const svc = items.find((s) => s.id === id);
       if (svc.isExplorePkg) {
         const detail = document.getElementById(svc.id + '_detail');
-        return detail?.value ? ['瑝珑+黑海岸'].concat(detail.value.split('\n').map((l) => '  ' + l)).join('\n') : '瑝珑+黑海岸';
+        return detail?.value ? [svc.name].concat(detail.value.split('\n').map((l) => '  ' + l)).join('\n') : svc.name;
       }
       if (svc.hasQty) {
         const qty = itemQty[id] || 1;
