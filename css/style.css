@@ -518,6 +518,10 @@ section {
 .explore-item-name { flex: 1; font-size: 0.82rem; font-weight: 500; }
 .explore-item-price { font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-secondary); min-width: 40px; text-align: right; }
 .explore-item .order-percent { margin-top: 0; padding-left: 0; }
+.explore-item .explore-pct { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
+.pct-btn { width: 20px; height: 20px; border-radius: 3px; border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; line-height: 1; transition: all 0.15s; }
+.pct-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,122,204,0.1); }
+.pct-value { font-size: 0.7rem; font-weight: 600; font-family: var(--font-mono); color: var(--accent); min-width: 28px; text-align: center; }
 .explore-item .percent-btn { width: 20px; height: 20px; font-size: 0.75rem; }
 .explore-item .percent-value { font-size: 0.72rem; min-width: 30px; }
 .explore-modal-footer { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-top: 1px solid var(--border); background: var(--bg-card); border-radius: 0 0 var(--radius) var(--radius); }

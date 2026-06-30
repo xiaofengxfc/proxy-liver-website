@@ -378,7 +378,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function openExploreModal(mode) {
     exploreMode = mode;
     const items = getExploreItems(mode);
-    items.forEach((item) => { if (exploreSel[item.id] === undefined) exploreSel[item.id] = false; });
+    items.forEach((item) => {
+      if (exploreSel[item.id] === undefined) exploreSel[item.id] = false;
+      if (explorePct[item.id] === undefined) explorePct[item.id] = 100;
+    });
     document.getElementById('explore-modal-title').textContent = getExploreLabel(mode);
     renderExploreModal();
     document.getElementById('explore-modal').classList.add('show');
@@ -388,14 +391,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   function renderExploreModal() {
     const items = getExploreItems(exploreMode);
+    const showPct = exploreMode !== 'collect';
     const allSel = items.every((item) => exploreSel[item.id]);
     let html = `<div class="explore-select-all" id="explore-select-all">
       <button class="btn btn-secondary" style="width:100%;justify-content:center;">${allSel ? '取消全选' : '☑ 全选'}</button>
     </div>`;
     html += `<div class="explore-section-title">${getExploreLabel(exploreMode)}</div>`;
+    html += '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:6px;font-family:var(--font-mono);">勾选区域后可用百分比微调探索度</div>';
     items.forEach((item) => {
       const sel = exploreSel[item.id];
-      html += `<div class="explore-item${sel ? ' selected' : ''}" data-eid="${item.id}"><div class="explore-check">${sel ? '✓' : ''}</div><span class="explore-item-name">${item.name}</span><span class="explore-item-price">¥${item.price}</span></div>`;
+      const pct = explorePct[item.id] || 100;
+      const adjusted = Math.round(item.price * pct / 100);
+      html += `<div class="explore-item${sel ? ' selected' : ''}" data-eid="${item.id}">`;
+      html += `<div class="explore-check">${sel ? '✓' : ''}</div>`;
+      html += `<span class="explore-item-name">${item.name}</span>`;
+      html += `<span class="explore-item-price">¥${adjusted}</span>`;
+      if (sel && showPct) {
+        html += `<div class="explore-pct" data-eid="${item.id}">`;
+        html += `<button class="pct-btn" data-action="minus">−</button>`;
+        html += `<span class="pct-value">${pct}%</span>`;
+        html += `<button class="pct-btn" data-action="plus">+</button>`;
+        html += `</div>`;
+      }
+      html += `</div>`;
     });
     document.getElementById('explore-modal-body').innerHTML = html;
     updateExploreTotal();
@@ -403,18 +421,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   function updateExploreTotal() {
     const items = getExploreItems(exploreMode);
-    const total = items.reduce((s, item) => s + (exploreSel[item.id] ? item.price : 0), 0);
+    const total = items.reduce((s, item) => {
+      if (!exploreSel[item.id]) return s;
+      const pct = explorePct[item.id] || 100;
+      return s + Math.round(item.price * pct / 100);
+    }, 0);
     document.getElementById('explore-total').innerHTML = `¥${total}`;
   }
   function bindExploreEvents() {
     document.querySelectorAll('#explore-modal-body .explore-item').forEach((el) => {
-      el.addEventListener('click', () => { exploreSel[el.dataset.eid] = !exploreSel[el.dataset.eid]; renderExploreModal(); });
+      el.addEventListener('click', (e) => {
+        if (e.target.closest('.explore-pct') || e.target.closest('.pct-btn')) return;
+        exploreSel[el.dataset.eid] = !exploreSel[el.dataset.eid];
+        renderExploreModal();
+      });
     });
     document.getElementById('explore-select-all')?.addEventListener('click', () => {
       const items = getExploreItems(exploreMode);
       const allSel = items.every((item) => exploreSel[item.id]);
       items.forEach((item) => { exploreSel[item.id] = !allSel; });
       renderExploreModal();
+    });
+    document.querySelectorAll('.pct-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const eid = btn.closest('.explore-pct').dataset.eid;
+        const cur = explorePct[eid] || 100;
+        const delta = btn.dataset.action === 'plus' ? 10 : -10;
+        const next = Math.max(10, Math.min(100, cur + delta));
+        explorePct[eid] = next;
+        renderExploreModal();
+      });
     });
   }
   document.getElementById('explore-modal-close').addEventListener('click', closeExploreModal);
@@ -426,7 +463,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let total = 0;
     const lines = [];
     items.forEach((item) => {
-      if (exploreSel[item.id]) { total += item.price; lines.push(`${item.name} ¥${item.price}`); }
+      if (exploreSel[item.id]) {
+        const pct = explorePct[item.id] || 100;
+        const adjusted = Math.round(item.price * pct / 100);
+        total += adjusted;
+        lines.push(`${item.name} ${pct}% ¥${adjusted}`);
+      }
     });
     if (total === 0) {
       delete selected[key];
