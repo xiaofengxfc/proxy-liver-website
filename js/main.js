@@ -397,11 +397,11 @@ document.addEventListener('DOMContentLoaded', () => {
       <button class="btn btn-secondary" style="width:100%;justify-content:center;">${allSel ? '取消全选' : '☑ 全选'}</button>
     </div>`;
     html += `<div class="explore-section-title">${getExploreLabel(exploreMode)}</div>`;
-    html += '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:6px;font-family:var(--font-mono);">勾选后使用 + 号增加探索度，价格按比例计算</div>';
+    html += '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:6px;font-family:var(--font-mono);">探索度越高价格越低，+ 号减钱</div>';
     items.forEach((item) => {
       const sel = exploreSel[item.id];
       const pct = explorePct[item.id] || 0;
-      const adjusted = Math.round(item.price * pct / 100);
+      const adjusted = Math.round(item.price * (100 - pct) / 100);
       html += `<div class="explore-item${sel ? ' selected' : ''}" data-eid="${item.id}">`;
       html += `<div class="explore-check">${sel ? '✓' : ''}</div>`;
       html += `<span class="explore-item-name">${item.name}</span>`;
@@ -424,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const total = items.reduce((s, item) => {
       if (!exploreSel[item.id]) return s;
       const pct = explorePct[item.id] || 0;
-      return s + Math.round(item.price * pct / 100);
+      return s + Math.round(item.price * (100 - pct) / 100);
     }, 0);
     document.getElementById('explore-total').innerHTML = `¥${total}`;
   }
@@ -465,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
     items.forEach((item) => {
       if (exploreSel[item.id]) {
         const pct = explorePct[item.id] || 0;
-        const adjusted = Math.round(item.price * pct / 100);
+        const adjusted = Math.round(item.price * (100 - pct) / 100);
         total += adjusted;
         lines.push(`${item.name} ${pct}% ¥${adjusted}`);
       }
